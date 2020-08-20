@@ -8,11 +8,23 @@ import java.util.Map;
  */
 public abstract class AbstractObject {
 
-    private Map<String, Object> object;
+    private final Map<String, Object> object;
 
     public AbstractObject() {
 
         this.object = new LinkedHashMap<>();
+
+    }
+
+    public AbstractObject(Map<String, Object> obj) {
+
+        this.object = obj;
+
+    }
+
+    protected Map<String, Object> getObject() {
+
+        return object;
 
     }
 
@@ -22,7 +34,7 @@ public abstract class AbstractObject {
      * @param value Element's value
      * @return Previous the element's value
      */
-    public Object AddKeyAndValue(String key, Object value) {
+    public Object addKeyAndValue(String key, Object value) {
 
         return this.object.put(key, value);
 
