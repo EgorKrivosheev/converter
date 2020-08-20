@@ -12,6 +12,12 @@ public class ObjectXML extends AbstractObject {
 
     }
 
+    public ObjectXML(Map<String, Object> obj) {
+
+        super(obj);
+
+    }
+
     public Map<String, Object> getMap() {
 
         return this.getObject();
