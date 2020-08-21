@@ -1,5 +1,7 @@
 package by.grodno.krivosheev.core;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,11 +26,11 @@ public abstract class AbstractObject {
 
     /**
      * Added new element
-     * @param key Element's key
+     * @param key Not null - element's key
      * @param value Element's value
      * @return Previous the element's value
      */
-    public Object addKeyAndValue(String key, Object value) {
+    public Object addKeyAndValue(@NotNull String key, Object value) {
 
         return this.object.put(key, value);
 

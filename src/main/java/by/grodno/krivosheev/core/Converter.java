@@ -9,11 +9,11 @@ public abstract class Converter {
 
     /**
      * Converted XML to JSON
-     * @param objXML Not null object XML
+     * @param objXML Not null - object XML
      * @return Object JSON
      */
     @NotNull
-    public static ObjectJSON toJSON(ObjectXML objXML) {
+    public static ObjectJSON toJSON(@NotNull ObjectXML objXML) {
 
         ObjectJSON objJSON = new ObjectJSON();
 
@@ -37,11 +37,11 @@ public abstract class Converter {
 
     /**
      * Converted JSON to XML
-     * @param objJSON Not null object JSON
+     * @param objJSON Not null - object JSON
      * @return Object XML
      */
     @NotNull
-    public static ObjectXML toXML(ObjectJSON objJSON) {
+    public static ObjectXML toXML(@NotNull ObjectJSON objJSON) {
 
         ObjectXML objXML = new ObjectXML();
 
