@@ -11,12 +11,20 @@ class ObjectJSONTest {
     @Test
     void testToString() {
 
-        objJSON.addKeyAndValue("1", "one");
-        ObjectJSON o = new ObjectJSON();
-        o.addKeyAndValue("4", "four");
-        objJSON.addKeyAndValue("2", o);
+        objJSON.addKeyAndValue("byte", (byte) 5);
+        objJSON.addKeyAndValue("short", (short) 55);
+        objJSON.addKeyAndValue("int", 555);
+        objJSON.addKeyAndValue("long", (long) 5555);
+        objJSON.addKeyAndValue("float", (float) 5.5);
+        objJSON.addKeyAndValue("double", 5.55);
+        objJSON.addKeyAndValue("bool", true);
+        ObjectJSON subObjJSON = new ObjectJSON();
+        subObjJSON.addKeyAndValue("work?", "YES");
+        objJSON.addKeyAndValue("object_JSON", subObjJSON);
 
-        assertEquals("{ \"1\": \"one\", \"2\": { \"4\": \"four\" } }", objJSON.toString());
+        assertEquals("{ \"byte\": 5, \"short\": 55, \"int\": 555, \"long\": 5555," +
+                " \"float\": 5.5, \"double\": 5.55, \"bool\": true, \"object_JSON\": { \"work?\": \"YES\" } }",
+                objJSON.toString());
 
     }
 

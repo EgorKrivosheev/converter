@@ -11,13 +11,14 @@ class ObjectXMLTest {
     @Test
     void testToString() {
 
-        objXML.addKeyAndValue("one", "1");
-        ObjectXML obj = new ObjectXML();
-        obj.addKeyAndValue("four", "4");
-        objXML.addKeyAndValue("two", obj);
-        objXML.addKeyAndValue("three", "3");
+        objXML.addKeyAndValue("string", "TEXT");
+        ObjectXML subObjXML = new ObjectXML();
+        subObjXML.addKeyAndValue("string", "It_too_TEXT");
+        objXML.addKeyAndValue("object_XML", subObjXML);
+        objXML.addKeyAndValue("work?", "YES");
 
-        assertEquals("<one>1</one><two><four>4</four></two><three>3</three>", objXML.toString());
+        assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string></object_XML>" +
+                "<work?>YES</work?>", objXML.toString());
 
     }
 

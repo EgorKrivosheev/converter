@@ -2,7 +2,6 @@ package by.grodno.krivosheev.objects;
 
 import by.grodno.krivosheev.core.AbstractObject;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ObjectJSON extends AbstractObject {
@@ -13,28 +12,22 @@ public class ObjectJSON extends AbstractObject {
 
     }
 
-    public ObjectJSON(Map<String, Object> obj) {
-
-        super(obj);
-
-    }
-
-    public Map<String, Object> getMap() {
-
-        return this.getObject();
-
-    }
-
     @Override
     public String toString() {
 
-        return this.getObject().keySet().stream()
-            .map(key -> this.getObject().get(key).getClass() != ObjectJSON.class &&
-                    this.getObject().get(key).getClass() != Integer.class &&
-                    this.getObject().get(key).getClass() != Boolean.class &&
-                    this.getObject().get(key).getClass() != Double.class ?
-                    "\"" + key + "\": \"" + this.getObject().get(key) + "\"" :
-                    "\"" + key + "\": " + this.getObject().get(key))
+        if (this.getMap().isEmpty()) return "Empty object!";
+
+        return this.getMap().keySet().stream()
+            .map(key -> this.getMap().get(key).getClass() != ObjectJSON.class &&
+                        this.getMap().get(key).getClass() != Byte.class &&
+                        this.getMap().get(key).getClass() != Short.class &&
+                        this.getMap().get(key).getClass() != Integer.class &&
+                        this.getMap().get(key).getClass() != Long.class &&
+                        this.getMap().get(key).getClass() != Float.class &&
+                        this.getMap().get(key).getClass() != Double.class &&
+                        this.getMap().get(key).getClass() != Boolean.class ?
+                    "\"" + key + "\": \"" + this.getMap().get(key) + "\"" :
+                    "\"" + key + "\": " + this.getMap().get(key))
             .collect(Collectors.joining(", ", "{ ", " }"));
 
     }

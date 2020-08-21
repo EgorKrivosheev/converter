@@ -16,13 +16,7 @@ public abstract class AbstractObject {
 
     }
 
-    public AbstractObject(Map<String, Object> obj) {
-
-        this.object = obj;
-
-    }
-
-    protected Map<String, Object> getObject() {
+    protected Map<String, Object> getMap() {
 
         return object;
 
