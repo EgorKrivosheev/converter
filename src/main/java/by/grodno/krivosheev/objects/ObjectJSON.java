@@ -9,7 +9,6 @@ public class ObjectJSON extends AbstractObject {
     public ObjectJSON() {
 
         super();
-
     }
 
     @Override
@@ -29,7 +28,5 @@ public class ObjectJSON extends AbstractObject {
                     "\"" + key + "\": \"" + this.getMap().get(key) + "\"" :
                     "\"" + key + "\": " + this.getMap().get(key))
             .collect(Collectors.joining(", ", "{ ", " }"));
-
     }
-
 }

@@ -15,13 +15,11 @@ public abstract class AbstractObject {
     public AbstractObject() {
 
         this.object = new LinkedHashMap<>();
-
     }
 
     protected Map<String, Object> getMap() {
 
         return object;
-
     }
 
     /**
@@ -33,9 +31,7 @@ public abstract class AbstractObject {
     public Object addKeyAndValue(@NotNull String key, Object value) {
 
         return this.object.put(key, value);
-
     }
 
     public abstract String toString();
-
 }

@@ -7,7 +7,6 @@ public class ObjectXML extends AbstractObject {
     public ObjectXML() {
 
         super();
-
     }
 
     @Override
@@ -24,7 +23,5 @@ public class ObjectXML extends AbstractObject {
         }
 
         return builder.toString();
-
     }
-
 }

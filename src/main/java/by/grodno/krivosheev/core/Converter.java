@@ -22,17 +22,12 @@ public abstract class Converter {
             if (objXML.getMap().get(key).getClass().equals(ObjectXML.class)) {
 
                 objJSON.addKeyAndValue(key, toJSON((ObjectXML) objXML.getMap().get(key)));
-
             } else {
 
                 objJSON.addKeyAndValue(key, objXML.getMap().get(key));
-
             }
-
         }
-
         return objJSON;
-
     }
 
     /**
@@ -50,16 +45,11 @@ public abstract class Converter {
             if(objJSON.getMap().get(key).getClass().equals(ObjectJSON.class)) {
 
                 objXML.addKeyAndValue(key, toXML((ObjectJSON) objJSON.getMap().get(key)));
-
             } else {
 
                 objXML.addKeyAndValue(key, objJSON.getMap().get(key));
-
             }
-
         }
-
         return objXML;
     }
-
 }
