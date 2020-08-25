@@ -30,7 +30,8 @@ class ParserTest {
         String textXML = "<string>TEXT</string>\n" +
                          "<object_XML>\n" +
                             "<string>It_too_TEXT</string>\n" +
-                         "</object_XML>";
+                         "</object_XML>" +
+                         "<work?>YES</work?>";
 
         assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string></object_XML>" +
                 "<work?>YES</work?>", Parser.getObjectXML(textXML).toString());
