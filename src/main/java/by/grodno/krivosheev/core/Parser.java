@@ -42,38 +42,30 @@ public abstract class Parser {
         int index = 0;
         char prevPrevChar = ' ';
         char prevChar = ' ';
-        Stack<String> stackKeys = new Stack<>();
+        Stack<String> stackKeys = new Stack<>(); // Stack for open keys
         String value = " ";
-        Stack<ObjectXML> links = new Stack<>();
-        boolean savedToLink = false;
+        Stack<ObjectXML> stackLinks = new Stack<>(); // Nesting stack (example: <key><newKey>VALUE</newKey></key>)
+        Stack<Boolean> savedToLink = new Stack<>();  // Needs to be nested
+        savedToLink.push(false);                // No nesting by default
 
         while (index < source.length()) {
             switch (source.charAt(index)) {
                 case '<':
-                    if (source.charAt(index + 1) != '/') {
+                    if (source.charAt(index + 1) != '/') { // True = element open KEY, false = element close KEY
                         String key = getStringToFoundChar(source.substring(index + 1), '>');
-                        if (prevChar == '<') {
-                            if (links.empty()) {
-                                links.push(new ObjectXML());
-                                links.peek().addKeyAndValue(key, new ObjectXML());
-                                objXML.addKeyAndValue(stackKeys.peek(), links.peek());
+                        if (prevChar == '<') { // If previous element was be KEY
+                            if (stackLinks.empty()) {
+                                stackLinks.push(new ObjectXML());
+                                stackLinks.peek().addKeyAndValue(key, new ObjectXML());
+                                objXML.addKeyAndValue(stackKeys.peek(), stackLinks.peek());
                             } else {
-                                ObjectXML buf = (ObjectXML) links.peek().getMap().get(stackKeys.peek());
-                                buf.addKeyAndValue(key, new ObjectXML());
-                                links.push(buf);
+                                if (stackLinks.peek().getMap().get(stackKeys.peek()) == null)
+                                    stackLinks.peek().addKeyAndValue(stackKeys.peek(), new ObjectXML());
+                                ObjectXML newLink = (ObjectXML) stackLinks.peek().getMap().get(stackKeys.peek());
+                                newLink.addKeyAndValue(key, new ObjectXML());
+                                stackLinks.push(newLink);
                             }
-
-
-                            System.out.println(links.peek().toString());
-
-                            /*ObjectXML newLink = new ObjectXML();
-                            newLink.addKeyAndValue(key, new ObjectXML());
-                            objXML.addKeyAndValue(stackKeys.peek(), newLink);*/
-
-                            System.out.println(objXML.toString());
-
-                            //links.push(newLink);
-                            savedToLink = true;
+                            savedToLink.push(true);
                         }
                         stackKeys.push(key);
                         prevPrevChar = prevChar;
@@ -82,16 +74,14 @@ public abstract class Parser {
                     } else {
                         index++;
                         String closeKey = getStringToFoundChar(source.substring(index + 1), '>');
-                        if (stackKeys.peek().equals(closeKey)) {
-
-                            System.out.println(prevPrevChar + " " + prevChar);
-
-                            if (prevPrevChar == '<' && prevChar == '>') {
-                                if (savedToLink) links.peek().addKeyAndValue(stackKeys.pop(), value);
-                                else objXML.addKeyAndValue(stackKeys.pop(), value);
+                        if (stackKeys.peek().equals(closeKey)) { // Comparing a closing KEY with a previously open KEY
+                            if (prevPrevChar == '<' && prevChar == '>') { // If previous element was be open KEY
+                                if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), value); // Save to link
+                                else objXML.addKeyAndValue(stackKeys.pop(), value); // Save to root
                             } else {
-                                savedToLink = false;
-                                links.pop();
+                                savedToLink.pop();  //
+                                stackLinks.pop();   // Popped stacks
+                                stackKeys.pop();    //
                             }
                         } else System.out.println("ERROR!!! index: " + index + ", open key: " + stackKeys.peek() +
                                                     ", close key: " + closeKey);
@@ -113,20 +103,8 @@ public abstract class Parser {
             }
             index++;
         }
-        if (stackKeys.empty()) System.out.println("Stack keys is empty!");
-        else  {
-            System.out.println("Stack keys is not empty!");
-            for (String key : stackKeys) {
-                System.out.println(key);
-            }
-        }
-        if (links.empty()) System.out.println("Links is empty!");
-        else {
-            System.out.println("Links is no empty!");
-            for (ObjectXML obj : links) {
-                System.out.println(obj.toString());
-            }
-        }
+        if (!stackKeys.empty()) System.out.println("Error!!! Stack keys is not empty!");
+        if (!stackLinks.empty()) System.out.println("Error!!! Links is not empty!");
         return objXML;
     }
 

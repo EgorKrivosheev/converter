@@ -10,26 +10,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConverterTest {
 
     private final ObjectJSON objJSON = new ObjectJSON();
-    private final ObjectXML objXML = new ObjectXML();
+    private final ObjectXML objXML = new ObjectXML("<string>TEXT</string>\n" +
+                    "<object_XML>\n" +
+                        "<string>It_too_TEXT</string>\n" +
+                        "<nested_obj_XML>" +
+                            "<key>VALUE</key>" +
+                        "</nested_obj_XML>" +
+                    "</object_XML>" +
+                    "<work?>YES</work?>");
 
     @Test
     void toJSON() {
 
-        objXML.addKeyAndValue("byte", (byte) 5);
-        objXML.addKeyAndValue("short", (short) 55);
-        objXML.addKeyAndValue("int", 555);
-        objXML.addKeyAndValue("long", (long) 5555);
-        objXML.addKeyAndValue("float", (float) 5.5);
-        objXML.addKeyAndValue("double", 5.55);
-        objXML.addKeyAndValue("bool", true);
-        ObjectXML subObjXML = new ObjectXML();
-        subObjXML.addKeyAndValue("work?", "YES");
-        objXML.addKeyAndValue("object_JSON", subObjXML);
-
-        assertEquals("{ \"byte\": 5, \"short\": 55, \"int\": 555, \"long\": 5555," +
-                " \"float\": 5.5, \"double\": 5.55, \"bool\": true, \"object_JSON\": { \"work?\": \"YES\" } }",
-                Converter.toJSON(objXML).toString());
-
+        assertEquals("{ \"string\": \"TEXT\", \"object_XML\": { \"string\": \"It_too_TEXT\", " +
+                "\"nested_obj_XML\": { \"key\": \"VALUE\" } }, " +
+                "\"work?\": \"YES\" }", Converter.toJSON(objXML).toString());
     }
 
     @Test

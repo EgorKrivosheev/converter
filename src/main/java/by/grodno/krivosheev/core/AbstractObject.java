@@ -17,6 +17,11 @@ public abstract class AbstractObject {
         this.object = new LinkedHashMap<>();
     }
 
+    protected AbstractObject(Map<String, Object> map) {
+
+        this.object = map;
+    }
+
     protected Map<String, Object> getMap() {
 
         return object;

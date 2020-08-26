@@ -1,12 +1,24 @@
 package by.grodno.krivosheev.objects;
 
 import by.grodno.krivosheev.core.AbstractObject;
+import by.grodno.krivosheev.core.Parser;
+
+import org.jetbrains.annotations.NotNull;
 
 public class ObjectXML extends AbstractObject {
 
     public ObjectXML() {
 
         super();
+    }
+
+    /**
+     * Construct ObjectXML
+     * @param source Not null - string XML
+     */
+    public ObjectXML(@NotNull String source) {
+
+        super(Parser.getObjectXML(source).getMap());
     }
 
     @Override
