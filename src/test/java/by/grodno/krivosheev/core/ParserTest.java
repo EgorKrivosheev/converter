@@ -2,7 +2,7 @@ package by.grodno.krivosheev.core;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
 
@@ -32,5 +32,16 @@ class ParserTest {
         assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string>" +
                 "<nested_obj_XML><key>VALUE</key></nested_obj_XML></object_XML>" +
                 "<work?>YES</work?>", Parser.getObjectXML(textXML).toString());
+    }
+
+    @Test
+    void isNumeric() {
+
+        assertTrue(Parser.isNumeric("-128"));
+        assertTrue(Parser.isNumeric("123456"));
+        assertTrue(Parser.isNumeric("5.5"));
+        assertTrue(Parser.isNumeric("-5.55"));
+        assertFalse(Parser.isNumeric("abc"));
+        assertFalse(Parser.isNumeric("5,55"));
     }
 }

@@ -20,13 +20,64 @@ public abstract class Parser {
         ObjectJSON objJSON = new ObjectJSON();
         int index = 0;
 
-        while (index < source.length()) {
-            /*
+        char prevChar = ' ';
+        Stack<String> stackKeys = new Stack<>();
+        String str = "";
+        StringBuilder strBuilder = new StringBuilder();
 
-             */
+        while (index < source.length()) {
+            switch (source.charAt(index)) {
+                case '{':
+                    prevChar = '{';
+                    break;
+
+                case '"':
+                    if (prevChar != '"') {
+                        str = getStringToFoundChar(source.substring(index + 1), '"');
+
+                        System.out.println(str);
+
+                        index += str.length();
+                    }
+                    prevChar = '"';
+                    break;
+
+                case ':':
+                    stackKeys.push(str);
+                    prevChar = ':';
+                    break;
+
+                case ',':
+                    if (prevChar == ':' || prevChar == '"') {
+                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? strBuilder : str);
+                        strBuilder.setLength(0);
+                        prevChar = ',';
+                        break;
+                    }
+                    stackKeys.pop();
+                    prevChar = ',';
+                    break;
+
+                case '}':
+                    if (prevChar == ',') System.out.println("Error! index:" + index + " previous char ','");
+                    if (prevChar == ':' || prevChar == '"') {
+                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? strBuilder : str);
+                        strBuilder.setLength(0);
+                        prevChar = '}';
+                        break;
+                    }
+                    stackKeys.pop();
+                    prevChar = '}';
+                    break;
+
+                default:
+                    if (prevChar == ':') strBuilder.append(source.charAt(index) != ' ' ? source.charAt(index) : "");
+                    break;
+            }
             index++;
         }
 
+        if (!stackKeys.isEmpty()) System.out.println("Error!!! Stack keys is not empty!");
         return objJSON;
     }
 
@@ -111,5 +162,10 @@ public abstract class Parser {
     private static String getStringToFoundChar(String source, char findChar) {
 
         return source.substring(0, source.indexOf(findChar));
+    }
+
+    protected static boolean isNumeric(@NotNull String str) {
+
+        return str.matches(("^(?:(?:-)?\\d+(?:\\.\\d+)?)$"));
     }
 }
