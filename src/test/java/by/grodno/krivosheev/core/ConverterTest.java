@@ -40,5 +40,4 @@ class ConverterTest {
                 "<work?>YES</work?>", Converter.toXML(objJSON).toString());
 
     }
-
 }

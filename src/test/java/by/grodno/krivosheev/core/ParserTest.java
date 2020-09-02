@@ -35,13 +35,34 @@ class ParserTest {
     }
 
     @Test
-    void isNumeric() {
+    void isIntNumber() {
 
-        assertTrue(Parser.isNumeric("-128"));
-        assertTrue(Parser.isNumeric("123456"));
-        assertTrue(Parser.isNumeric("5.5"));
-        assertTrue(Parser.isNumeric("-5.55"));
-        assertFalse(Parser.isNumeric("abc"));
-        assertFalse(Parser.isNumeric("5,55"));
+        assertTrue(Parser.isIntNumber("1"));
+        assertTrue(Parser.isIntNumber("234"));
+        assertTrue(Parser.isIntNumber("-5678"));
+        assertTrue(Parser.isIntNumber("-9"));
+        assertFalse(Parser.isIntNumber("abc"));
+        assertFalse(Parser.isIntNumber("1.2"));
+        assertFalse(Parser.isIntNumber("-3,45"));
+    }
+
+    @Test
+    void isDecNumber() {
+
+        assertTrue(Parser.isDecNumber("1.2"));
+        assertTrue(Parser.isDecNumber("-3.4"));
+        assertTrue(Parser.isDecNumber("56.789"));
+        assertTrue(Parser.isDecNumber("-901.2345"));
+        assertFalse(Parser.isDecNumber("abc"));
+        assertFalse(Parser.isDecNumber("1"));
+        assertFalse(Parser.isDecNumber("-23"));
+        assertFalse(Parser.isDecNumber("4,56"));
+        assertFalse(Parser.isDecNumber("-78,9"));
+    }
+
+    @Test
+    void setValue() {
+
+
     }
 }

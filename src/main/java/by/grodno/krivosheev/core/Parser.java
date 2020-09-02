@@ -34,9 +34,6 @@ public abstract class Parser {
                 case '"':
                     if (prevChar != '"') {
                         str = getStringToFoundChar(source.substring(index + 1), '"');
-
-                        System.out.println(str);
-
                         index += str.length();
                     }
                     prevChar = '"';
@@ -49,7 +46,7 @@ public abstract class Parser {
 
                 case ',':
                     if (prevChar == ':' || prevChar == '"') {
-                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? strBuilder : str);
+                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? setValue(strBuilder.toString()) : str);
                         strBuilder.setLength(0);
                         prevChar = ',';
                         break;
@@ -61,7 +58,7 @@ public abstract class Parser {
                 case '}':
                     if (prevChar == ',') System.out.println("Error! index:" + index + " previous char ','");
                     if (prevChar == ':' || prevChar == '"') {
-                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? strBuilder : str);
+                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? setValue(strBuilder.toString()) : str);
                         strBuilder.setLength(0);
                         prevChar = '}';
                         break;
@@ -164,8 +161,42 @@ public abstract class Parser {
         return source.substring(0, source.indexOf(findChar));
     }
 
-    protected static boolean isNumeric(@NotNull String str) {
+    protected static boolean isIntNumber(@NotNull String str) {
 
-        return str.matches(("^(?:(?:-)?\\d+(?:\\.\\d+)?)$"));
+        return str.matches("^(?:(?:-)?\\d+)$");
     }
+
+    protected static boolean isDecNumber(@NotNull String str) {
+
+        return str.matches("^(?:(?:-)?\\d+\\.\\d+)$");
+    }
+
+    protected static Object setValue(@NotNull String str) {
+
+        if (!isIntNumber(str) && !isDecNumber(str)) {       //
+            if (str.equals("true")) return Boolean.TRUE;    // The value is of type boolean
+            if (str.equals("false")) return Boolean.FALSE;  //
+        }
+        if (isIntNumber(str)) {
+            if (str.length() < 3) return Byte.parseByte(str);   // The value is of type byte
+            if (str.length() > 19) return str;  // The value is of type string
+            if (str.length() < 5) {
+                short buf = Short.parseShort(str);
+                if (buf >= -128 && buf < 128) return Byte.parseByte(str);   // The value is of type byte
+                else return buf;    // The value is of type short
+            }
+            if (str.length() < 10) {
+                int buf = Integer.parseInt(str);
+                if (buf >= -32768 && buf < 32767) return Short.parseShort(str);     // The value is of type short
+                else return buf;    // The value is of type int
+            }
+            if (str.length() < 19) {
+                long buf = Long.parseLong(str);
+                if (buf >= -2147483648 && buf < 2147483647) return Integer.parseInt(str);   // The value is of type int
+                else return buf;    // The value is of type long
+            }
+        }
+        return str;
+    }
+
 }
