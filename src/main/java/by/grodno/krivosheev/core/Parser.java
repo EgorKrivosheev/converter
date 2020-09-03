@@ -163,12 +163,12 @@ public abstract class Parser {
 
     protected static boolean isIntNumber(@NotNull String str) {
 
-        return str.matches("^(?:(?:-)?\\d+)$");
+        return str.matches("(?:-)?\\d+");
     }
 
     protected static boolean isDecNumber(@NotNull String str) {
 
-        return str.matches("^(?:(?:-)?\\d+\\.\\d+)$");
+        return str.matches("(?:-)?\\d+\\.\\d+");
     }
 
     protected static Object setValue(@NotNull String str) {
@@ -178,23 +178,28 @@ public abstract class Parser {
             if (str.equals("false")) return Boolean.FALSE;  //
         }
         if (isIntNumber(str)) {
-            if (str.length() < 3) return Byte.parseByte(str);   // The value is of type byte
-            if (str.length() > 19) return str;  // The value is of type string
+            if (str.length() < 3) return Byte.parseByte(str); // The value is of type byte
+            if (str.length() > 19) return str; // The value is of type string
             if (str.length() < 5) {
                 short buf = Short.parseShort(str);
-                if (buf >= -128 && buf < 128) return Byte.parseByte(str);   // The value is of type byte
+                if (buf >= Byte.MIN_VALUE && buf <= Byte.MAX_VALUE) return Byte.parseByte(str); // The value is of type byte
                 else return buf;    // The value is of type short
             }
             if (str.length() < 10) {
                 int buf = Integer.parseInt(str);
-                if (buf >= -32768 && buf < 32767) return Short.parseShort(str);     // The value is of type short
+                if (buf >= Short.MIN_VALUE && buf <= Short.MAX_VALUE) return Short.parseShort(str); // The value is of type short
                 else return buf;    // The value is of type int
             }
             if (str.length() < 19) {
                 long buf = Long.parseLong(str);
-                if (buf >= -2147483648 && buf < 2147483647) return Integer.parseInt(str);   // The value is of type int
+                if (buf >= Integer.MIN_VALUE && buf <= Integer.MAX_VALUE) return Integer.parseInt(str); // The value is of type int
                 else return buf;    // The value is of type long
             }
+        }
+        if (isDecNumber(str)) {
+            if (str.length() > 307) return str;
+            else if (str.length() < 38) return Float.parseFloat(str);
+            else return Double.parseDouble(str);
         }
         return str;
     }
