@@ -63,6 +63,11 @@ class ParserTest {
     @Test
     void setValue() {
 
-
+        assertEquals(Byte.class, Parser.setValue("123").getClass());
+        assertEquals(Short.class, Parser.setValue("-4567").getClass());
+        assertEquals(Integer.class, Parser.setValue("890123").getClass());
+        assertEquals(Long.class, Parser.setValue("-4567890123456").getClass());
+        assertEquals(String.class, Parser.setValue("789012345678901234567").getClass());
+        assertEquals(Boolean.class, Parser.setValue("true").getClass());
     }
 }
