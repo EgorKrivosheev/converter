@@ -70,6 +70,6 @@ class ParserTest {
         assertEquals(String.class, Parser.setValue("789012345678901234567").getClass());
         assertEquals(Boolean.class, Parser.setValue("true").getClass());
         assertEquals(Float.class, Parser.setValue("8.901").getClass());
-        assertEquals(Double.class, Parser.setValue("-23.456789012345678901234567890123456789").getClass());
+        assertEquals(Double.class, Parser.setValue("-234567890123456.78901234567890123456789").getClass());
     }
 }

@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConverterTest {
 
-    private final ObjectJSON objJSON = new ObjectJSON();
+    private final ObjectJSON objJSON = new ObjectJSON("{ \"string\": \"TEXT\", \"object_JSON\": { " +
+                        "\"string\": \"It_too_TEXT\", \"number\": 12345 }, " +
+                    "\"work?\": \"YES\" }");
     private final ObjectXML objXML = new ObjectXML("<string>TEXT</string>\n" +
                     "<object_XML>\n" +
                         "<string>It_too_TEXT</string>\n" +
@@ -30,14 +32,7 @@ class ConverterTest {
     @Test
     void toXML() {
 
-        objJSON.addKeyAndValue("string", "TEXT");
-        ObjectJSON subObjJSON = new ObjectJSON();
-        subObjJSON.addKeyAndValue("string", "It_too_TEXT");
-        objJSON.addKeyAndValue("object_XML", subObjJSON);
-        objJSON.addKeyAndValue("work?", "YES");
-
-        assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string></object_XML>" +
+        assertEquals("<string>TEXT</string><object_JSON><string>It_too_TEXT</string><number>12345</number></object_JSON>" +
                 "<work?>YES</work?>", Converter.toXML(objJSON).toString());
-
     }
 }

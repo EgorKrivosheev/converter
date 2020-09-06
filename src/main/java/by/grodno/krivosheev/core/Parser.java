@@ -21,19 +21,32 @@ public abstract class Parser {
         int index = 0;
 
         char prevChar = ' ';
-        Stack<String> stackKeys = new Stack<>();
+        Stack<String> stackKeys = new Stack<>(); // Stack for keys
         String str = "";
         StringBuilder strBuilder = new StringBuilder();
+        Stack<ObjectJSON> stackLinks = new Stack<>(); // Nesting stack (example: { "key": { "newKey": "Value" } })
+        Stack<Boolean> savedToLink = new Stack<>(); // Needs to be nested
+        savedToLink.push(false);                // No nesting by default
 
         while (index < source.length()) {
             switch (source.charAt(index)) {
                 case '{':
+                    if (prevChar == ':') {
+                        if (stackLinks.empty()) {
+                            stackLinks.push(new ObjectJSON());                          // Create new ObjectJSON for link
+                            objJSON.addKeyAndValue(stackKeys.peek(), stackLinks.peek());// add in root objectJSON
+                        } else {
+                            stackLinks.peek().addKeyAndValue(stackKeys.peek(), new ObjectJSON());
+                            stackLinks.push((ObjectJSON) stackLinks.peek().getMap().get(stackKeys.peek()));
+                        }
+                        savedToLink.push(true);
+                    }
                     prevChar = '{';
                     break;
 
                 case '"':
                     if (prevChar != '"') {
-                        str = getStringToFoundChar(source.substring(index + 1), '"');
+                        str = getStringToFoundChar(source.substring(index + 1), '"'); // Get VALUE between "..."
                         index += str.length();
                     }
                     prevChar = '"';
@@ -46,7 +59,10 @@ public abstract class Parser {
 
                 case ',':
                     if (prevChar == ':' || prevChar == '"') {
-                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? setValue(strBuilder.toString()) : str);
+                        if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
+                                                    setValue(strBuilder.toString()) : str); // Save to link
+                        else objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
+                                setValue(strBuilder.toString()) : str); // Save to root
                         strBuilder.setLength(0);
                         prevChar = ',';
                         break;
@@ -56,12 +72,25 @@ public abstract class Parser {
                     break;
 
                 case '}':
-                    if (prevChar == ',') System.out.println("Error! index:" + index + " previous char ','");
+                    if (prevChar == ',') System.out.println("Error! index:" + index + " previous char ','!!!");
                     if (prevChar == ':' || prevChar == '"') {
-                        objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ? setValue(strBuilder.toString()) : str);
+                        if (savedToLink.peek()) {
+                            stackLinks.pop().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
+                                setValue(strBuilder.toString()) : str); // Save to link
+                            savedToLink.pop();
+                        } else objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
+                                setValue(strBuilder.toString()) : str); // Save to root
                         strBuilder.setLength(0);
                         prevChar = '}';
                         break;
+                    }
+                    if (prevChar == '}') {
+                        if (!stackLinks.isEmpty()) {
+                            if (stackLinks.peek().getMap().containsKey(stackKeys.peek())) {
+                                stackLinks.pop();   // Popped links
+                                savedToLink.pop();
+                            }
+                        }
                     }
                     stackKeys.pop();
                     prevChar = '}';
@@ -73,8 +102,8 @@ public abstract class Parser {
             }
             index++;
         }
-
         if (!stackKeys.isEmpty()) System.out.println("Error!!! Stack keys is not empty!");
+        if (!stackLinks.empty()) System.out.println("Error!!! Links is not empty!");
         return objJSON;
     }
 
@@ -103,17 +132,17 @@ public abstract class Parser {
                         String key = getStringToFoundChar(source.substring(index + 1), '>');
                         if (prevChar == '<') { // If previous element was be KEY
                             if (stackLinks.empty()) {
-                                stackLinks.push(new ObjectXML());
-                                stackLinks.peek().addKeyAndValue(key, new ObjectXML());
-                                objXML.addKeyAndValue(stackKeys.peek(), stackLinks.peek());
+                                stackLinks.push(new ObjectXML());                       // Create new ObjectXML
+                                stackLinks.peek().addKeyAndValue(key, new ObjectXML()); // for stack and add KEY
+                                objXML.addKeyAndValue(stackKeys.peek(), stackLinks.peek()); // Add in root ObjectXML
                             } else {
-                                if (stackLinks.peek().getMap().get(stackKeys.peek()) == null)
-                                    stackLinks.peek().addKeyAndValue(stackKeys.peek(), new ObjectXML());
-                                ObjectXML newLink = (ObjectXML) stackLinks.peek().getMap().get(stackKeys.peek());
-                                newLink.addKeyAndValue(key, new ObjectXML());
-                                stackLinks.push(newLink);
+                                if (stackLinks.peek().getMap().get(stackKeys.peek()) == null)           // If in object of stack not found KEY
+                                    stackLinks.peek().addKeyAndValue(stackKeys.peek(), new ObjectXML());// add this KEY for last objectXML
+                                ObjectXML newLink = (ObjectXML) stackLinks.peek().getMap().get(stackKeys.peek());   // Get last objectXML
+                                newLink.addKeyAndValue(key, new ObjectXML());                                       // add this objectXML new KEY
+                                stackLinks.push(newLink);                                                           // push new object for link
                             }
-                            savedToLink.push(true);
+                            savedToLink.push(true); // The next KEYS need save to the link
                         }
                         stackKeys.push(key);
                         prevPrevChar = prevChar;
@@ -141,7 +170,7 @@ public abstract class Parser {
 
                 case '>':
                     if (index == source.length() - 1) break;
-                    value = getStringToFoundChar(source.substring(index + 1), '<');
+                    value = getStringToFoundChar(source.substring(index + 1), '<'); // Get VALUE
                     index += value.length();
                     if (source.charAt(index + 2) == '/') {
                         prevPrevChar = prevChar;
@@ -156,7 +185,8 @@ public abstract class Parser {
         return objXML;
     }
 
-    private static String getStringToFoundChar(String source, char findChar) {
+    @NotNull
+    private static String getStringToFoundChar(@NotNull String source, char findChar) {
 
         return source.substring(0, source.indexOf(findChar));
     }
@@ -197,9 +227,9 @@ public abstract class Parser {
             }
         }
         if (isDecNumber(str)) {
-            if (str.length() > 307) return str;
-            else if (str.length() < 38) return Float.parseFloat(str);
-            else return Double.parseDouble(str);
+            if (str.length() > 307) return str; // The value is of type string
+            else if (str.length() < 38) return Float.parseFloat(str); // The value is of type float
+            else return Double.parseDouble(str);    // The value is of type double
         }
         return str;
     }

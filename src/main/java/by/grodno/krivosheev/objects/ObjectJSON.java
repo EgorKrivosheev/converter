@@ -1,6 +1,8 @@
 package by.grodno.krivosheev.objects;
 
 import by.grodno.krivosheev.core.AbstractObject;
+import by.grodno.krivosheev.core.Parser;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Collectors;
 
@@ -9,6 +11,15 @@ public class ObjectJSON extends AbstractObject {
     public ObjectJSON() {
 
         super();
+    }
+
+    /**
+     * Construct ObjectJSON
+     * @param source Not null - string JSON
+     */
+    public ObjectJSON(@NotNull String source) {
+
+        super(Parser.getObjectJSON(source).getMap());
     }
 
     @Override
