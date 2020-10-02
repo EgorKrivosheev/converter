@@ -25,6 +25,7 @@ public class ObjectJSON extends AbstractObject {
     @Override
     public String toString() {
 
+        if (!this.getError().isEmpty()) return this.getError();
         if (this.getMap().isEmpty()) return "Empty object!";
 
         return this.getMap().keySet().stream()

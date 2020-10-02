@@ -24,6 +24,7 @@ public class ObjectXML extends AbstractObject {
     @Override
     public String toString() {
 
+        if (!this.getError().isEmpty()) return this.getError();
         if (this.getMap().isEmpty()) return "Empty object!";
 
         StringBuilder builder = new StringBuilder();

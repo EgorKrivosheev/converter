@@ -11,6 +11,7 @@ import java.util.Map;
 public abstract class AbstractObject {
 
     private final Map<String, Object> object;
+    private String error = "";
 
     public AbstractObject() {
 
@@ -25,6 +26,16 @@ public abstract class AbstractObject {
     protected Map<String, Object> getMap() {
 
         return object;
+    }
+
+    public void setError(String str) {
+
+        this.error = str;
+    }
+
+    protected String getError() {
+
+        return error;
     }
 
     /**

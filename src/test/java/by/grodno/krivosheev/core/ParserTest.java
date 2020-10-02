@@ -15,6 +15,10 @@ class ParserTest {
         assertEquals("{ \"byte\": 5, \"short\": 55, \"int\": 555, \"long\": 5555," +
                 " \"float\": 5.5, \"double\": 5.55, \"bool\": true, \"object_JSON\": { \"work?\": \"YES\" } }",
                 Parser.getObjectJSON(textJSON).toString());
+
+        String errorTextJSON = "{\"key\": \"value\",}";
+
+        assertEquals("Error! index:16 previous char ','!!!", Parser.getObjectJSON(errorTextJSON).toString());
     }
 
     @Test
@@ -32,6 +36,10 @@ class ParserTest {
         assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string>" +
                 "<nested_obj_XML><key>VALUE</key></nested_obj_XML></object_XML>" +
                 "<work?>YES</work?>", Parser.getObjectXML(textXML).toString());
+
+        String errorTextXML = "<key>VALUE</keey>";
+
+        assertEquals("Error!!! index: 11, open key: key, close key: keey", Parser.getObjectXML(errorTextXML).toString());
     }
 
     @Test

@@ -72,7 +72,11 @@ public abstract class Parser {
                     break;
 
                 case '}':
-                    if (prevChar == ',') System.out.println("Error! index:" + index + " previous char ','!!!");
+                    if (prevChar == ',') {
+                        objJSON.setError("Error! index:" + index + " previous char ','!!!");
+                        prevChar = '}';
+                        break;
+                    }
                     if (prevChar == ':' || prevChar == '"') {
                         if (savedToLink.peek()) {
                             stackLinks.pop().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
@@ -160,7 +164,7 @@ public abstract class Parser {
                                 stackLinks.pop();   // Popped stacks
                                 stackKeys.pop();    //
                             }
-                        } else System.out.println("ERROR!!! index: " + index + ", open key: " + stackKeys.peek() +
+                        } else objXML.setError("Error!!! index: " + index + ", open key: " + stackKeys.peek() +
                                                     ", close key: " + closeKey);
                         prevPrevChar = prevChar;
                         prevChar = '/';
