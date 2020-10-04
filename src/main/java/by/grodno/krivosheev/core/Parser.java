@@ -70,7 +70,7 @@ public abstract class Parser {
 
                 case '}':
                     if (prevChar == ',') {
-                        throw new Exception("Error! index:\" + index + \" previous char ','!!!\"");
+                        throw new Exception("Error!!! index: " + index + " previous char ','");
                     }
                     if (prevChar == ':' || prevChar == '"') {
                         if (savedToLink.peek()) {
