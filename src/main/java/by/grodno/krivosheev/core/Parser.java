@@ -8,18 +8,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Stack;
 
 public abstract class Parser {
-
     /**
      * Get JSON object from string
      * @param source Not null - string JSON
      * @return Object JSON
      */
     @NotNull
-    public static ObjectJSON getObjectJSON(@NotNull String source) {
-
+    public static ObjectJSON getObjectJSON(@NotNull String source) throws Exception {
         ObjectJSON objJSON = new ObjectJSON();
         int index = 0;
-
         char prevChar = ' ';
         Stack<String> stackKeys = new Stack<>(); // Stack for keys
         String str = "";
@@ -73,9 +70,7 @@ public abstract class Parser {
 
                 case '}':
                     if (prevChar == ',') {
-                        objJSON.setError("Error! index:" + index + " previous char ','!!!");
-                        prevChar = '}';
-                        break;
+                        throw new Exception("Error! index:\" + index + \" previous char ','!!!\"");
                     }
                     if (prevChar == ':' || prevChar == '"') {
                         if (savedToLink.peek()) {
@@ -117,8 +112,7 @@ public abstract class Parser {
      * @return Object XML
      */
     @NotNull
-    public static ObjectXML getObjectXML(@NotNull String source) {
-
+    public static ObjectXML getObjectXML(@NotNull String source) throws Exception{
         ObjectXML objXML = new ObjectXML();
         int index = 0;
         char prevPrevChar = ' ';
@@ -164,7 +158,7 @@ public abstract class Parser {
                                 stackLinks.pop();   // Popped stacks
                                 stackKeys.pop();    //
                             }
-                        } else objXML.setError("Error!!! index: " + index + ", open key: " + stackKeys.peek() +
+                        } else throw new Exception("Error!!! index: " + index + ", open key: " + stackKeys.peek() +
                                                     ", close key: " + closeKey);
                         prevPrevChar = prevChar;
                         prevChar = '/';
@@ -191,22 +185,18 @@ public abstract class Parser {
 
     @NotNull
     private static String getStringToFoundChar(@NotNull String source, char findChar) {
-
         return source.substring(0, source.indexOf(findChar));
     }
 
     protected static boolean isIntNumber(@NotNull String str) {
-
         return str.matches("(?:-)?\\d+");
     }
 
     protected static boolean isDecNumber(@NotNull String str) {
-
         return str.matches("(?:-)?\\d+\\.\\d+");
     }
 
     protected static Object setValue(@NotNull String str) {
-
         if (!isIntNumber(str) && !isDecNumber(str)) {       //
             if (str.equals("true")) return Boolean.TRUE;    // The value is of type boolean
             if (str.equals("false")) return Boolean.FALSE;  //

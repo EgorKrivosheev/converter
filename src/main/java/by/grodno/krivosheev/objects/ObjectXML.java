@@ -6,9 +6,7 @@ import by.grodno.krivosheev.core.Parser;
 import org.jetbrains.annotations.NotNull;
 
 public class ObjectXML extends AbstractObject {
-
     public ObjectXML() {
-
         super();
     }
 
@@ -16,15 +14,12 @@ public class ObjectXML extends AbstractObject {
      * Construct ObjectXML
      * @param source Not null - string XML
      */
-    public ObjectXML(@NotNull String source) {
-
+    public ObjectXML(@NotNull String source) throws Exception {
         super(Parser.getObjectXML(source).getMap());
     }
 
     @Override
     public String toString() {
-
-        if (!this.getError().isEmpty()) return this.getError();
         if (this.getMap().isEmpty()) return "Empty object!";
 
         StringBuilder builder = new StringBuilder();
@@ -34,7 +29,6 @@ public class ObjectXML extends AbstractObject {
                 .append(this.getMap().get(key))
                     .append("</").append(key).append(">");
         }
-
         return builder.toString();
     }
 }

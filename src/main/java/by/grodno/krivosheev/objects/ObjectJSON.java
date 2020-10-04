@@ -7,9 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.stream.Collectors;
 
 public class ObjectJSON extends AbstractObject {
-
     public ObjectJSON() {
-
         super();
     }
 
@@ -17,17 +15,13 @@ public class ObjectJSON extends AbstractObject {
      * Construct ObjectJSON
      * @param source Not null - string JSON
      */
-    public ObjectJSON(@NotNull String source) {
-
+    public ObjectJSON(@NotNull String source) throws Exception {
         super(Parser.getObjectJSON(source).getMap());
     }
 
     @Override
     public String toString() {
-
-        if (!this.getError().isEmpty()) return this.getError();
         if (this.getMap().isEmpty()) return "Empty object!";
-
         return this.getMap().keySet().stream()
             .map(key -> this.getMap().get(key).getClass() != ObjectJSON.class &&
                         this.getMap().get(key).getClass() != Byte.class &&

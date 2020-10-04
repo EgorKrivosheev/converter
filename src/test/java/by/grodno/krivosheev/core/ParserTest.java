@@ -1,14 +1,13 @@
 package by.grodno.krivosheev.core;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
-
     @Test
-    void getObjectJSON() {
-
+    void getObjectJSON() throws Exception {
         String textJSON = "{\"byte\": 5,\"short\": 55,\"int\":555, \"long\": 5555,\"float\": 5.5," +
                 " \"double\": 5.55, \"bool\": true, \"object_JSON\": {\"work?\": \"YES\"}}";
 
@@ -18,12 +17,11 @@ class ParserTest {
 
         String errorTextJSON = "{\"key\": \"value\",}";
 
-        assertEquals("Error! index:16 previous char ','!!!", Parser.getObjectJSON(errorTextJSON).toString());
+        Assertions.assertThrows(Exception.class, () -> Parser.getObjectJSON(errorTextJSON), "\"Error! index:16 previous char ','!!!\"");
     }
 
     @Test
-    void getObjectXML() {
-
+    void getObjectXML() throws Exception {
         String textXML = "<string>TEXT</string>\n" +
                          "<object_XML>\n" +
                             "<string>It_too_TEXT</string>\n" +
@@ -39,12 +37,11 @@ class ParserTest {
 
         String errorTextXML = "<key>VALUE</keey>";
 
-        assertEquals("Error!!! index: 11, open key: key, close key: keey", Parser.getObjectXML(errorTextXML).toString());
+        Assertions.assertThrows(Exception.class, () -> Parser.getObjectXML(errorTextXML), "Error!!! index: 11, open key: key, close key: keey");
     }
 
     @Test
     void isIntNumber() {
-
         assertTrue(Parser.isIntNumber("1"));
         assertTrue(Parser.isIntNumber("234"));
         assertTrue(Parser.isIntNumber("-5678"));
@@ -56,7 +53,6 @@ class ParserTest {
 
     @Test
     void isDecNumber() {
-
         assertTrue(Parser.isDecNumber("1.2"));
         assertTrue(Parser.isDecNumber("-3.4"));
         assertTrue(Parser.isDecNumber("56.789"));
@@ -70,7 +66,6 @@ class ParserTest {
 
     @Test
     void setValue() {
-
         assertEquals(Byte.class, Parser.setValue("123").getClass());
         assertEquals(Short.class, Parser.setValue("-4567").getClass());
         assertEquals(Integer.class, Parser.setValue("890123").getClass());
