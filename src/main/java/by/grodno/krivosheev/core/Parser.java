@@ -42,19 +42,22 @@ public abstract class Parser {
                     break;
 
                 case '"':
+                    if (prevChar == ' ') throw new Exception("Error!!! index: " + index + " waiting '{'");
                     if (prevChar != '"') {
-                        str = getStringToFoundChar(source.substring(index + 1), '"'); // Get VALUE between "..."
+                        str = getStringToFoundChar(source.substring(index + 1), '"', index); // Get VALUE between "..."
                         index += str.length();
                     }
                     prevChar = '"';
                     break;
 
                 case ':':
+                    if (prevChar != '"') throw new Exception("Error!!! index: " + index + " waiting \"key\"");
                     stackKeys.push(str);
                     prevChar = ':';
                     break;
 
                 case ',':
+                    if (prevChar == '{' || prevChar == ' ') throw new Exception("Error!!! index: " + index + " waiting \"value\"");
                     if (prevChar == ':' || prevChar == '"') {
                         if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
                                                     setValue(strBuilder.toString()) : str); // Save to link
@@ -69,9 +72,8 @@ public abstract class Parser {
                     break;
 
                 case '}':
-                    if (prevChar == ',') {
-                        throw new Exception("Error!!! index: " + index + " previous char ','");
-                    }
+                    if (prevChar == ',' || prevChar == '{')
+                        throw new Exception("Error!!! index: " + index + " previous char '" + prevChar + "'");
                     if (prevChar == ':' || prevChar == '"') {
                         if (savedToLink.peek()) {
                             stackLinks.pop().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
@@ -83,14 +85,14 @@ public abstract class Parser {
                         prevChar = '}';
                         break;
                     }
-                    if (prevChar == '}') {
+                    if (prevChar == '}' && !stackKeys.isEmpty()) {
                         if (!stackLinks.isEmpty()) {
                             if (stackLinks.peek().getMap().containsKey(stackKeys.peek())) {
-                                stackLinks.pop();   // Popped links
+                                stackLinks.pop();
                                 savedToLink.pop();
                             }
                         }
-                    }
+                    } else throw new Exception("Error!!! index: " + index);
                     stackKeys.pop();
                     prevChar = '}';
                     break;
@@ -101,8 +103,10 @@ public abstract class Parser {
             }
             index++;
         }
-        if (!stackKeys.isEmpty()) System.out.println("Error!!! Stack keys is not empty!");
-        if (!stackLinks.empty()) System.out.println("Error!!! Links is not empty!");
+        if (!stackKeys.isEmpty() || !stackLinks.empty()) throw new Exception("Error!!! key: " + stackKeys.peek() +
+                                                            " waiting char ',' or '}'");
+        if (prevChar == '{' || prevChar == '"' || prevChar == ':' || prevChar == ',')
+            throw new Exception("Error!!! index: " + index);
         return objJSON;
     }
 
@@ -127,7 +131,7 @@ public abstract class Parser {
             switch (source.charAt(index)) {
                 case '<':
                     if (source.charAt(index + 1) != '/') { // True = element open KEY, false = element close KEY
-                        String key = getStringToFoundChar(source.substring(index + 1), '>');
+                        String key = getStringToFoundChar(source.substring(index + 1), '>', index);
                         if (prevChar == '<') { // If previous element was be KEY
                             if (stackLinks.empty()) {
                                 stackLinks.push(new ObjectXML());                       // Create new ObjectXML
@@ -148,7 +152,7 @@ public abstract class Parser {
                         index += key.length();
                     } else {
                         index++;
-                        String closeKey = getStringToFoundChar(source.substring(index + 1), '>');
+                        String closeKey = getStringToFoundChar(source.substring(index + 1), '>', index);
                         if (stackKeys.peek().equals(closeKey)) { // Comparing a closing KEY with a previously open KEY
                             if (prevPrevChar == '<' && prevChar == '>') { // If previous element was be open KEY
                                 if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), value); // Save to link
@@ -159,7 +163,7 @@ public abstract class Parser {
                                 stackKeys.pop();    //
                             }
                         } else throw new Exception("Error!!! index: " + index + ", open key: " + stackKeys.peek() +
-                                                    ", close key: " + closeKey);
+                                    ", close key: " + closeKey);
                         prevPrevChar = prevChar;
                         prevChar = '/';
                         index += closeKey.length();
@@ -168,7 +172,7 @@ public abstract class Parser {
 
                 case '>':
                     if (index == source.length() - 1) break;
-                    value = getStringToFoundChar(source.substring(index + 1), '<'); // Get VALUE
+                    value = getStringToFoundChar(source.substring(index + 1), '<', index); // Get VALUE
                     index += value.length();
                     if (source.charAt(index + 2) == '/') {
                         prevPrevChar = prevChar;
@@ -178,13 +182,14 @@ public abstract class Parser {
             }
             index++;
         }
-        if (!stackKeys.empty()) System.out.println("Error!!! Stack keys is not empty!");
-        if (!stackLinks.empty()) System.out.println("Error!!! Links is not empty!");
+        if (!stackKeys.empty() || !stackLinks.empty()) throw new Exception("Error!!! open key: " + stackKeys.peek() +
+                                                            " waiting close key '</" + stackKeys.peek() + ">'");
         return objXML;
     }
 
     @NotNull
-    private static String getStringToFoundChar(@NotNull String source, char findChar) {
+    private static String getStringToFoundChar(@NotNull String source, char findChar, int index) throws Exception {
+        if (source.indexOf(findChar) == -1) throw new Exception("Error!!! index: " + index + " waiting char '" + findChar + "'");
         return source.substring(0, source.indexOf(findChar));
     }
 
@@ -197,10 +202,8 @@ public abstract class Parser {
     }
 
     protected static Object setValue(@NotNull String str) {
-        if (!isIntNumber(str) && !isDecNumber(str)) {       //
-            if (str.equals("true")) return Boolean.TRUE;    // The value is of type boolean
-            if (str.equals("false")) return Boolean.FALSE;  //
-        }
+        if (str.equals("true")) return Boolean.TRUE;
+        if (str.equals("false")) return Boolean.FALSE;
         if (isIntNumber(str)) {
             if (str.length() < 3) return Byte.parseByte(str); // The value is of type byte
             if (str.length() > 19) return str; // The value is of type string

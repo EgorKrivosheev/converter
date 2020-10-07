@@ -2,6 +2,7 @@ package by.grodno.krivosheev.objects;
 
 import by.grodno.krivosheev.core.AbstractObject;
 import by.grodno.krivosheev.core.Parser;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.stream.Collectors;

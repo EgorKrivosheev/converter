@@ -1,6 +1,5 @@
 package by.grodno.krivosheev.core;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,9 +14,11 @@ class ParserTest {
                 " \"float\": 5.5, \"double\": 5.55, \"bool\": true, \"object_JSON\": { \"work?\": \"YES\" } }",
                 Parser.getObjectJSON(textJSON).toString());
 
-        String errorTextJSON = "{\"key\": \"value\",}";
+        String[] arrayErrorTextJSON = { "{", "{\"", "{\"key\"", "{\"key\":", "\"key\": }", "{\"key\": \"value\",}" };
 
-        Assertions.assertThrows(Exception.class, () -> Parser.getObjectJSON(errorTextJSON), "\"Error! index:16 previous char ','!!!\"");
+        for (String errorTextJSON : arrayErrorTextJSON) {
+            assertThrows(Exception.class, () -> Parser.getObjectJSON(errorTextJSON));
+        }
     }
 
     @Test
@@ -35,9 +36,8 @@ class ParserTest {
                 "<nested_obj_XML><key>VALUE</key></nested_obj_XML></object_XML>" +
                 "<work?>YES</work?>", Parser.getObjectXML(textXML).toString());
 
-        String errorTextXML = "<key>VALUE</keey>";
-
-        Assertions.assertThrows(Exception.class, () -> Parser.getObjectXML(errorTextXML), "Error!!! index: 11, open key: key, close key: keey");
+        assertThrows(Exception.class, () -> Parser.getObjectXML("<key>VALUE</key1>"));
+        assertThrows(Exception.class, () -> Parser.getObjectXML("<key><key2>VALUE</key>"));
     }
 
     @Test
