@@ -59,6 +59,7 @@ public abstract class Parser {
                 case ',':
                     if (prevChar == '{' || prevChar == ' ') throw new Exception("Error!!! index: " + index + " waiting \"value\"");
                     if (prevChar == ':' || prevChar == '"') {
+                        if (stackKeys.isEmpty()) throw new Exception("Error!!! index: " + index + " missing previous char ':'");
                         if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
                                                     setValue(strBuilder.toString()) : str); // Save to link
                         else objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
@@ -75,6 +76,7 @@ public abstract class Parser {
                     if (prevChar == ',' || prevChar == '{')
                         throw new Exception("Error!!! index: " + index + " previous char '" + prevChar + "'");
                     if (prevChar == ':' || prevChar == '"') {
+                        if (stackKeys.isEmpty()) throw new Exception("Error!!! index: " + index + " missing previous char ':'");
                         if (savedToLink.peek()) {
                             stackLinks.pop().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
                                 setValue(strBuilder.toString()) : str); // Save to link
@@ -130,6 +132,7 @@ public abstract class Parser {
         while (index < source.length()) {
             switch (source.charAt(index)) {
                 case '<':
+                    if (index + 1 > source.length() - 1) throw new Exception("Error!!! index: " + index + " waiting char '>'");
                     if (source.charAt(index + 1) != '/') { // True = element open KEY, false = element close KEY
                         String key = getStringToFoundChar(source.substring(index + 1), '>', index);
                         if (prevChar == '<') { // If previous element was be KEY
@@ -189,7 +192,7 @@ public abstract class Parser {
 
     @NotNull
     private static String getStringToFoundChar(@NotNull String source, char findChar, int index) throws Exception {
-        if (source.indexOf(findChar) == -1) throw new Exception("Error!!! index: " + index + " waiting char '" + findChar + "'");
+        if (source.indexOf(findChar) == -1 || source.equals("")) throw new Exception("Error!!! index: " + index + " waiting char '" + findChar + "'");
         return source.substring(0, source.indexOf(findChar));
     }
 

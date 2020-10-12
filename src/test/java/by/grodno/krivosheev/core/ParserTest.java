@@ -8,13 +8,13 @@ class ParserTest {
     @Test
     void getObjectJSON() throws Exception {
         String textJSON = "{\"byte\": 5,\"short\": 55,\"int\":555, \"long\": 5555,\"float\": 5.5," +
-                " \"double\": 5.55, \"bool\": true, \"object_JSON\": {\"work?\": \"YES\"}}";
+                " \"double\": 5.55, \"bool\": true, \"object_JSON\": {\"work?\": \"YES\"} }";
 
         assertEquals("{ \"byte\": 5, \"short\": 55, \"int\": 555, \"long\": 5555," +
                 " \"float\": 5.5, \"double\": 5.55, \"bool\": true, \"object_JSON\": { \"work?\": \"YES\" } }",
                 Parser.getObjectJSON(textJSON).toString());
 
-        String[] arrayErrorTextJSON = { "{", "{\"", "{\"key\"", "{\"key\":", "\"key\": }", "{\"key\": \"value\",}" };
+        String[] arrayErrorTextJSON = { "{", "{\"", "{\"key\"", "{\"key\":", "\"key\": }", "{\"key\" \"value\"}", "{\"key\": \"value\",}" };
 
         for (String errorTextJSON : arrayErrorTextJSON) {
             assertThrows(Exception.class, () -> Parser.getObjectJSON(errorTextJSON));
@@ -36,8 +36,11 @@ class ParserTest {
                 "<nested_obj_XML><key>VALUE</key></nested_obj_XML></object_XML>" +
                 "<work?>YES</work?>", Parser.getObjectXML(textXML).toString());
 
-        assertThrows(Exception.class, () -> Parser.getObjectXML("<key>VALUE</key1>"));
-        assertThrows(Exception.class, () -> Parser.getObjectXML("<key><key2>VALUE</key>"));
+        String[] arrayErrorTextXML = { "<", "<Key", "<key>", "<key>value", "<key>VALUE</key1>", "<key><key2>VALUE</key>" };
+
+        for (String errorTextXML : arrayErrorTextXML) {
+            assertThrows(Exception.class, () -> Parser.getObjectXML(errorTextXML));
+        }
     }
 
     @Test
