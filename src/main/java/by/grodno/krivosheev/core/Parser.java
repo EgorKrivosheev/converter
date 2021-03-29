@@ -1,153 +1,172 @@
 package by.grodno.krivosheev.core;
 
-import by.grodno.krivosheev.objects.ObjectJSON;
-import by.grodno.krivosheev.objects.ObjectXML;
+import by.grodno.krivosheev.objects.JsonArrayObject;
+import by.grodno.krivosheev.objects.JsonObject;
+import by.grodno.krivosheev.objects.XmlObject;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Stack;
 
 public abstract class Parser {
+    private static int index = 0;
+
     /**
      * Get JSON object from string
      * @param source Not null - string JSON
      * @return Object JSON
+     * @throws SyntaxException If the {@code source} expression's syntax is invalid
      */
     @NotNull
-    public static ObjectJSON getObjectJSON(@NotNull String source) throws Exception {
-        ObjectJSON objJSON = new ObjectJSON();
-        int index = 0;
+    public static JsonObject getJsonObject(@NotNull String source) throws SyntaxException {
+        Validator.isValidJsonText(source);
+        // Next code will used if source is valid JSON text
+        JsonObject jsonObj = new JsonObject();
+        Stack<JsonArrayObject> jsonArrayObjectStack = new Stack<>();
+        String key = "",
+                value;
         char prevChar = ' ';
-        Stack<String> stackKeys = new Stack<>(); // Stack for keys
-        String str = "";
         StringBuilder strBuilder = new StringBuilder();
-        Stack<ObjectJSON> stackLinks = new Stack<>(); // Nesting stack (example: { "key": { "newKey": "Value" } })
-        Stack<Boolean> savedToLink = new Stack<>(); // Needs to be nested
-        savedToLink.push(false);                // No nesting by default
-
-        while (index < source.length()) {
-            switch (source.charAt(index)) {
+        boolean isSaveKey = false,
+                isSaveValue = false,
+                isSaveSpace = false;
+        Stack<Boolean> isSaveToArrayStack = new Stack<>();
+        // TODO: Refactor
+        do {
+            char ch = source.charAt(index);
+            switch (ch) {
                 case '{':
                     if (prevChar == ':') {
-                        if (stackLinks.empty()) {
-                            stackLinks.push(new ObjectJSON());                          // Create new ObjectJSON for link
-                            objJSON.addKeyAndValue(stackKeys.peek(), stackLinks.peek());// add in root objectJSON
-                        } else {
-                            stackLinks.peek().addKeyAndValue(stackKeys.peek(), new ObjectJSON());
-                            stackLinks.push((ObjectJSON) stackLinks.peek().getMap().get(stackKeys.peek()));
-                        }
-                        savedToLink.push(true);
+                        // Recursive
+                        jsonObj.addKeyAndValue(key, getJsonObject(source));
                     }
-                    prevChar = '{';
-                    break;
-
-                case '"':
-                    if (prevChar == ' ') throw new Exception("Error!!! index: " + index + " waiting '{'");
-                    if (prevChar != '"') {
-                        str = getStringToFoundChar(source.substring(index + 1), '"', index); // Get VALUE between "..."
-                        index += str.length();
-                    }
-                    prevChar = '"';
+                    isSaveKey = true;
                     break;
 
                 case ':':
-                    if (prevChar != '"') throw new Exception("Error!!! index: " + index + " waiting \"key\"");
-                    stackKeys.push(str);
-                    prevChar = ':';
+                    key = strBuilder.toString();
+                    isSaveKey = false;
+                    strBuilder.setLength(0);
+                    isSaveValue = true;
                     break;
 
                 case ',':
-                    if (prevChar == '{' || prevChar == ' ') throw new Exception("Error!!! index: " + index + " waiting \"value\"");
-                    if (prevChar == ':' || prevChar == '"') {
-                        if (stackKeys.isEmpty()) throw new Exception("Error!!! index: " + index + " missing previous char ':'");
-                        if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
-                                                    setValue(strBuilder.toString()) : str); // Save to link
-                        else objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
-                                setValue(strBuilder.toString()) : str); // Save to root
-                        strBuilder.setLength(0);
-                        prevChar = ',';
-                        break;
-                    }
-                    stackKeys.pop();
-                    prevChar = ',';
-                    break;
 
                 case '}':
-                    if (prevChar == ',' || prevChar == '{')
-                        throw new Exception("Error!!! index: " + index + " previous char '" + prevChar + "'");
-                    if (prevChar == ':' || prevChar == '"') {
-                        if (stackKeys.isEmpty()) throw new Exception("Error!!! index: " + index + " missing previous char ':'");
-                        if (savedToLink.peek()) {
-                            stackLinks.pop().addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
-                                setValue(strBuilder.toString()) : str); // Save to link
-                            savedToLink.pop();
-                        } else objJSON.addKeyAndValue(stackKeys.pop(), prevChar == ':' ?
-                                setValue(strBuilder.toString()) : str); // Save to root
+                    if (!isSaveToArrayStack.isEmpty() && prevChar != ']' && prevChar != '}') {
+                        jsonArrayObjectStack.peek().add(setValue(strBuilder.toString()));
                         strBuilder.setLength(0);
-                        prevChar = '}';
                         break;
                     }
-                    if (prevChar == '}' && !stackKeys.isEmpty()) {
-                        if (!stackLinks.isEmpty()) {
-                            if (stackLinks.peek().getMap().containsKey(stackKeys.peek())) {
-                                stackLinks.pop();
-                                savedToLink.pop();
-                            }
-                        }
-                    } else throw new Exception("Error!!! index: " + index);
-                    stackKeys.pop();
-                    prevChar = '}';
+                    if (prevChar == ']') {
+                        jsonArrayObjectStack.pop().add(setValue(strBuilder.toString()));
+                        strBuilder.setLength(0);
+                        break;
+                    }
+                    value = strBuilder.toString();
+                    if (prevChar != '{' && prevChar != '}')
+                        jsonObj.addKeyAndValue(key, prevChar == ':' ?
+                                setValue(value) :
+                                value);
+                    // Return from recursive
+                    if (ch == '}' && index != source.length() - 1) return jsonObj;
+                    break;
+
+                case '[':
+                    if (jsonArrayObjectStack.isEmpty()) {
+                        jsonArrayObjectStack.push(new JsonArrayObject());
+                        jsonObj.addKeyAndValue(key, jsonArrayObjectStack.peek());
+                    } else {
+                        JsonArrayObject lastArray = jsonArrayObjectStack.peek();
+                        jsonArrayObjectStack.push(new JsonArrayObject());
+                        JsonObject buf = new JsonObject();
+                        buf.addKeyAndValue(key, jsonArrayObjectStack.peek());
+                        lastArray.add(buf);
+                    }
+                    isSaveToArrayStack.push(true);
+                    //isSaveValue = false;
+                    break;
+
+                case ']':
+                    // Is valid JSON text, exception don't may
+                    isSaveToArrayStack.pop();
+                    break;
+
+                case '"':
+                    isSaveSpace = true;
+                    if (prevChar == '"') isSaveSpace = false;
+                    else strBuilder.setLength(0);
                     break;
 
                 default:
-                    if (prevChar == ':') strBuilder.append(source.charAt(index) != ' ' ? source.charAt(index) : "");
+                    if (ch == ' ' && !isSaveSpace) break;
+                    //if (isSaveKey || isSaveValue || isSaveSpace || isSaveToArray) strBuilder.append(ch);
+                    strBuilder.append(ch);
                     break;
             }
+            if (Utils.sysCharJson.contains(ch)) prevChar = ch;
             index++;
-        }
-        if (!stackKeys.isEmpty() || !stackLinks.empty()) throw new Exception("Error!!! key: " + stackKeys.peek() +
-                                                            " waiting char ',' or '}'");
-        if (prevChar == '{' || prevChar == '"' || prevChar == ':' || prevChar == ',')
-            throw new Exception("Error!!! index: " + index);
-        return objJSON;
+        } while (index < source.length());
+        // Reset static index
+        index = 0;
+        return jsonObj;
     }
 
     /**
      * Get XML object from string
      * @param source Not null - string XML
      * @return Object XML
+     * @throws SyntaxException If the {@code source} expression's syntax is invalid
      */
     @NotNull
-    public static ObjectXML getObjectXML(@NotNull String source) throws Exception{
-        ObjectXML objXML = new ObjectXML();
+    public static XmlObject getXmlObject(@NotNull String source) throws SyntaxException {
+        Validator.isValidXmlText(source);
+        // Next code will used if source is valid XML text
+        XmlObject objXML = new XmlObject();
         int index = 0;
         char prevPrevChar = ' ';
         char prevChar = ' ';
-        Stack<String> stackKeys = new Stack<>(); // Stack for open keys
+        // Stack for open keys
+        Stack<String> stackKeys = new Stack<>();
         String value = " ";
-        Stack<ObjectXML> stackLinks = new Stack<>(); // Nesting stack (example: <key><newKey>VALUE</newKey></key>)
-        Stack<Boolean> savedToLink = new Stack<>();  // Needs to be nested
-        savedToLink.push(false);                // No nesting by default
-
+        // Nesting stack (example: <key><newKey>VALUE</newKey></key>)
+        Stack<XmlObject> stackLinks = new Stack<>();
+        // Needs to be nested
+        Stack<Boolean> savedToLink = new Stack<>();
+        // No nesting by default
+        savedToLink.push(false);
+        // TODO: Refactor
         while (index < source.length()) {
             switch (source.charAt(index)) {
                 case '<':
-                    if (index + 1 > source.length() - 1) throw new Exception("Error!!! index: " + index + " waiting char '>'");
-                    if (source.charAt(index + 1) != '/') { // True = element open KEY, false = element close KEY
+                    if (index + 1 > source.length() - 1) {
+                        throw new SyntaxException("Error!!! index: " + index + " waiting char '>'");
+                    }
+                    // True = element open KEY, false = element close KEY
+                    if (source.charAt(index + 1) != '/') {
                         String key = getStringToFoundChar(source.substring(index + 1), '>', index);
-                        if (prevChar == '<') { // If previous element was be KEY
+                        // If previous element was be KEY
+                        if (prevChar == '<') {
                             if (stackLinks.empty()) {
-                                stackLinks.push(new ObjectXML());                       // Create new ObjectXML
-                                stackLinks.peek().addKeyAndValue(key, new ObjectXML()); // for stack and add KEY
-                                objXML.addKeyAndValue(stackKeys.peek(), stackLinks.peek()); // Add in root ObjectXML
+                                // Create new ObjectXML for stack and add KEY
+                                stackLinks.push(new XmlObject());
+                                stackLinks.peek().addKeyAndValue(key, new XmlObject());
+                                // Add in root ObjectXML
+                                objXML.addKeyAndValue(stackKeys.peek(), stackLinks.peek());
                             } else {
-                                if (stackLinks.peek().getMap().get(stackKeys.peek()) == null)           // If in object of stack not found KEY
-                                    stackLinks.peek().addKeyAndValue(stackKeys.peek(), new ObjectXML());// add this KEY for last objectXML
-                                ObjectXML newLink = (ObjectXML) stackLinks.peek().getMap().get(stackKeys.peek());   // Get last objectXML
-                                newLink.addKeyAndValue(key, new ObjectXML());                                       // add this objectXML new KEY
-                                stackLinks.push(newLink);                                                           // push new object for link
+                                // If in object of stack not found KEY, add this KEY for last objectXML
+                                if (stackLinks.peek().getMap().get(stackKeys.peek()) == null) {
+                                    stackLinks.peek().addKeyAndValue(stackKeys.peek(), new XmlObject());
+                                }
+                                // Get last objectXML
+                                XmlObject newLink = (XmlObject) stackLinks.peek().getMap().get(stackKeys.peek());
+                                // Add this objectXML new KEY
+                                newLink.addKeyAndValue(key, new XmlObject());
+                                // Push new object for link
+                                stackLinks.push(newLink);
                             }
-                            savedToLink.push(true); // The next KEYS need save to the link
+                            // The next KEYS need save to the link
+                            savedToLink.push(true);
                         }
                         stackKeys.push(key);
                         prevPrevChar = prevChar;
@@ -156,17 +175,22 @@ public abstract class Parser {
                     } else {
                         index++;
                         String closeKey = getStringToFoundChar(source.substring(index + 1), '>', index);
-                        if (stackKeys.peek().equals(closeKey)) { // Comparing a closing KEY with a previously open KEY
-                            if (prevPrevChar == '<' && prevChar == '>') { // If previous element was be open KEY
-                                if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), value); // Save to link
-                                else objXML.addKeyAndValue(stackKeys.pop(), value); // Save to root
+                        // Comparing a closing KEY with a previously open KEY
+                        if (stackKeys.peek().equals(closeKey)) {
+                            // If previous element was be open KEY
+                            if (prevPrevChar == '<' && prevChar == '>') {
+                                // Save to link or to root
+                                if (savedToLink.peek()) stackLinks.peek().addKeyAndValue(stackKeys.pop(), value);
+                                else objXML.addKeyAndValue(stackKeys.pop(), value);
                             } else {
-                                savedToLink.pop();  //
-                                stackLinks.pop();   // Popped stacks
-                                stackKeys.pop();    //
+                                savedToLink.pop();
+                                stackLinks.pop();
+                                stackKeys.pop();
                             }
-                        } else throw new Exception("Error!!! index: " + index + ", open key: " + stackKeys.peek() +
+                        } else {
+                            throw new SyntaxException("Error!!! index: " + index + ", open key: " + stackKeys.peek() +
                                     ", close key: " + closeKey);
+                        }
                         prevPrevChar = prevChar;
                         prevChar = '/';
                         index += closeKey.length();
@@ -175,7 +199,7 @@ public abstract class Parser {
 
                 case '>':
                     if (index == source.length() - 1) break;
-                    value = getStringToFoundChar(source.substring(index + 1), '<', index); // Get VALUE
+                    value = getStringToFoundChar(source.substring(index + 1), '<', index);
                     index += value.length();
                     if (source.charAt(index + 2) == '/') {
                         prevPrevChar = prevChar;
@@ -185,14 +209,18 @@ public abstract class Parser {
             }
             index++;
         }
-        if (!stackKeys.empty() || !stackLinks.empty()) throw new Exception("Error!!! open key: " + stackKeys.peek() +
-                                                            " waiting close key '</" + stackKeys.peek() + ">'");
+        if (!stackKeys.empty() || !stackLinks.empty()) {
+            throw new SyntaxException("Error!!! open key: " + stackKeys.peek() +
+                    " waiting close key '</" + stackKeys.peek() + ">'");
+        }
         return objXML;
     }
 
     @NotNull
-    private static String getStringToFoundChar(@NotNull String source, char findChar, int index) throws Exception {
-        if (source.indexOf(findChar) == -1 || source.equals("")) throw new Exception("Error!!! index: " + index + " waiting char '" + findChar + "'");
+    private static String getStringToFoundChar(@NotNull String source, char findChar, int index) throws SyntaxException {
+        if (source.indexOf(findChar) == -1 || source.equals("")) {
+            throw new SyntaxException("Error!!! index: " + index + " waiting char '" + findChar + "'");
+        }
         return source.substring(0, source.indexOf(findChar));
     }
 
@@ -208,29 +236,30 @@ public abstract class Parser {
         if (str.equals("true")) return Boolean.TRUE;
         if (str.equals("false")) return Boolean.FALSE;
         if (isIntNumber(str)) {
-            if (str.length() < 3) return Byte.parseByte(str); // The value is of type byte
-            if (str.length() > 19) return str; // The value is of type string
+            if (str.length() < 3) return Byte.parseByte(str);
+            if (str.length() > 19) return str;
             if (str.length() < 5) {
                 short buf = Short.parseShort(str);
-                if (buf >= Byte.MIN_VALUE && buf <= Byte.MAX_VALUE) return Byte.parseByte(str); // The value is of type byte
-                else return buf;    // The value is of type short
+                if (buf >= Byte.MIN_VALUE && buf <= Byte.MAX_VALUE) return Byte.parseByte(str);
+                else return buf;
             }
             if (str.length() < 10) {
                 int buf = Integer.parseInt(str);
-                if (buf >= Short.MIN_VALUE && buf <= Short.MAX_VALUE) return Short.parseShort(str); // The value is of type short
-                else return buf;    // The value is of type int
+                if (buf >= Short.MIN_VALUE && buf <= Short.MAX_VALUE) return Short.parseShort(str);
+                else return buf;
             }
             if (str.length() < 19) {
                 long buf = Long.parseLong(str);
-                if (buf >= Integer.MIN_VALUE && buf <= Integer.MAX_VALUE) return Integer.parseInt(str); // The value is of type int
-                else return buf;    // The value is of type long
+                if (buf >= Integer.MIN_VALUE && buf <= Integer.MAX_VALUE) return Integer.parseInt(str);
+                else return buf;
             }
         }
         if (isDecNumber(str)) {
-            if (str.length() > 307) return str; // The value is of type string
-            else if (str.length() < 38) return Float.parseFloat(str); // The value is of type float
-            else return Double.parseDouble(str);    // The value is of type double
+            if (str.length() > 307) return str;
+            else if (str.length() < 38) return Float.parseFloat(str);
+            else return Double.parseDouble(str);
         }
         return str;
     }
+
 }

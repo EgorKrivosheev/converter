@@ -29,9 +29,14 @@ public abstract class AbstractObject {
      * @param value Element's value
      * @return Previous the element's value
      */
-    public Object addKeyAndValue(@NotNull String key, Object value) {
+    protected Object addKeyAndValue(@NotNull String key, Object value) {
         return this.object.put(key, value);
     }
 
     public abstract String toString();
+
+    public boolean isEmpty() {
+        return this.object.isEmpty();
+    }
+
 }

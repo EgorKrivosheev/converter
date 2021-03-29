@@ -5,42 +5,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
+
     @Test
-    void getObjectJSON() throws Exception {
-        String textJSON = "{\"byte\": 5,\"short\": 55,\"int\":555, \"long\": 5555,\"float\": 5.5," +
-                " \"double\": 5.55, \"bool\": true, \"object_JSON\": {\"work?\": \"YES\"} }";
+    void getJsonObject() throws SyntaxException {
+        String jsonText = "{\"array\": [{\"name\": \"NAME\"},{\"age\": 22}], \"bool\": true, " +
+                "\"object_JSON\": {\"work?\": \"YES\"} }";
 
-        assertEquals("{ \"byte\": 5, \"short\": 55, \"int\": 555, \"long\": 5555," +
-                " \"float\": 5.5, \"double\": 5.55, \"bool\": true, \"object_JSON\": { \"work?\": \"YES\" } }",
-                Parser.getObjectJSON(textJSON).toString());
+        assertEquals("{ \"array\": [{\"name\": \"NAME\"},{\"age\": 22}], \"bool\": true, " +
+                        "\"object_JSON\": { \"work?\": \"YES\" } }", Parser.getJsonObject(jsonText).toString());
 
-        String[] arrayErrorTextJSON = { "{", "{\"", "{\"key\"", "{\"key\":", "\"key\": }", "{\"key\" \"value\"}", "{\"key\": \"value\",}" };
-
-        for (String errorTextJSON : arrayErrorTextJSON) {
-            assertThrows(Exception.class, () -> Parser.getObjectJSON(errorTextJSON));
-        }
     }
 
     @Test
-    void getObjectXML() throws Exception {
-        String textXML = "<string>TEXT</string>\n" +
-                         "<object_XML>\n" +
-                            "<string>It_too_TEXT</string>\n" +
-                            "<nested_obj_XML>" +
-                                "<key>VALUE</key>" +
-                            "</nested_obj_XML>" +
-                         "</object_XML>" +
-                         "<work?>YES</work?>";
+    void getXmlObject() throws SyntaxException {
+        String xmlText = "<string>TEXT</string><object_XML><string>It_too_TEXT</string><nested_obj_XML>" +
+                "<key>VALUE</key></nested_obj_XML></object_XML><work?>YES</work?>";
 
-        assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string>" +
-                "<nested_obj_XML><key>VALUE</key></nested_obj_XML></object_XML>" +
-                "<work?>YES</work?>", Parser.getObjectXML(textXML).toString());
-
-        String[] arrayErrorTextXML = { "<", "<Key", "<key>", "<key>value", "<key>VALUE</key1>", "<key><key2>VALUE</key>" };
-
-        for (String errorTextXML : arrayErrorTextXML) {
-            assertThrows(Exception.class, () -> Parser.getObjectXML(errorTextXML));
-        }
+        assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string><nested_obj_XML>" +
+                "<key>VALUE</key></nested_obj_XML></object_XML><work?>YES</work?>",
+                Parser.getXmlObject(xmlText).toString());
     }
 
     @Test
@@ -49,6 +32,7 @@ class ParserTest {
         assertTrue(Parser.isIntNumber("234"));
         assertTrue(Parser.isIntNumber("-5678"));
         assertTrue(Parser.isIntNumber("-9"));
+
         assertFalse(Parser.isIntNumber("abc"));
         assertFalse(Parser.isIntNumber("1.2"));
         assertFalse(Parser.isIntNumber("-3,45"));
@@ -60,6 +44,7 @@ class ParserTest {
         assertTrue(Parser.isDecNumber("-3.4"));
         assertTrue(Parser.isDecNumber("56.789"));
         assertTrue(Parser.isDecNumber("-901.2345"));
+
         assertFalse(Parser.isDecNumber("abc"));
         assertFalse(Parser.isDecNumber("1"));
         assertFalse(Parser.isDecNumber("-23"));
@@ -78,4 +63,5 @@ class ParserTest {
         assertEquals(Float.class, Parser.setValue("8.901").getClass());
         assertEquals(Double.class, Parser.setValue("-234567890123456.78901234567890123456789").getClass());
     }
+
 }

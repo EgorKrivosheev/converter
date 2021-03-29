@@ -1,22 +1,23 @@
 package by.grodno.krivosheev.objects;
 
+import by.grodno.krivosheev.core.SyntaxException;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ObjectXMLTest {
+class XmlObjectTest {
+    private final XmlObject objXML = new XmlObject("<string>TEXT</string><object_XML>" +
+                "<string>It_too_TEXT</string></object_XML><work?>YES</work?>");
 
-    private final ObjectXML objXML = new ObjectXML("<string>TEXT</string><object_XML>" +
-                "<string>It_too_TEXT</string></object_XML>");
-
-    ObjectXMLTest() throws Exception {
+    XmlObjectTest() throws SyntaxException {
 
     }
 
     @Test
     void testToString() {
-        objXML.addKeyAndValue("work?", "YES");
         assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string></object_XML>" +
                 "<work?>YES</work?>", objXML.toString());
     }
+
 }

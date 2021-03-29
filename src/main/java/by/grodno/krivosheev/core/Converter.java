@@ -1,46 +1,48 @@
 package by.grodno.krivosheev.core;
 
-import by.grodno.krivosheev.objects.ObjectJSON;
-import by.grodno.krivosheev.objects.ObjectXML;
+import by.grodno.krivosheev.objects.JsonObject;
+import by.grodno.krivosheev.objects.XmlObject;
 
 import org.jetbrains.annotations.NotNull;
 
 public abstract class Converter {
+
     /**
      * Converted XML to JSON
-     * @param objXML Not null - object XML
+     * @param xmlObj Not null - object XML
      * @return Object JSON
      */
     @NotNull
-    public static ObjectJSON toJSON(@NotNull ObjectXML objXML) {
-        ObjectJSON objJSON = new ObjectJSON();
-
-        for (String key : objXML.getMap().keySet()) {
-            if (objXML.getMap().get(key).getClass().equals(ObjectXML.class)) {
-                objJSON.addKeyAndValue(key, toJSON((ObjectXML) objXML.getMap().get(key)));
+    public static JsonObject xmlToJson(@NotNull XmlObject xmlObj) {
+        JsonObject jsonObj = new JsonObject();
+        // TODO: Refactor
+        for (String key : xmlObj.getMap().keySet()) {
+            if (xmlObj.getMap().get(key).getClass().equals(XmlObject.class)) {
+                jsonObj.addKeyAndValue(key, xmlToJson((XmlObject) xmlObj.getMap().get(key)));
             } else {
-                objJSON.addKeyAndValue(key, objXML.getMap().get(key));
+                jsonObj.addKeyAndValue(key, xmlObj.getMap().get(key));
             }
         }
-        return objJSON;
+        return jsonObj;
     }
 
     /**
      * Converted JSON to XML
-     * @param objJSON Not null - object JSON
+     * @param jsonObj Not null - object JSON
      * @return Object XML
      */
     @NotNull
-    public static ObjectXML toXML(@NotNull ObjectJSON objJSON) {
-        ObjectXML objXML = new ObjectXML();
-
-        for (String key : objJSON.getMap().keySet()) {
-            if(objJSON.getMap().get(key).getClass().equals(ObjectJSON.class)) {
-                objXML.addKeyAndValue(key, toXML((ObjectJSON) objJSON.getMap().get(key)));
+    public static XmlObject jsonToXml(@NotNull JsonObject jsonObj) {
+        XmlObject objXML = new XmlObject();
+        // TODO: Refactor
+        for (String key : jsonObj.getMap().keySet()) {
+            if(jsonObj.getMap().get(key).getClass().equals(JsonObject.class)) {
+                objXML.addKeyAndValue(key, jsonToXml((JsonObject) jsonObj.getMap().get(key)));
             } else {
-                objXML.addKeyAndValue(key, objJSON.getMap().get(key));
+                objXML.addKeyAndValue(key, jsonObj.getMap().get(key));
             }
         }
         return objXML;
     }
+
 }
