@@ -18,7 +18,7 @@ public class JsonArrayObject extends AbstractArrayObject {
                 .map(obj -> Utils.classes.contains(obj.getClass()) ?
                         obj.toString() :
                         "\"" + obj + "\"")
-                .collect(Collectors.joining(", ", "[ ", " ]"));
+                .collect(Collectors.joining(",", "[", "]"));
     }
 
 }

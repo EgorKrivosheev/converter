@@ -11,6 +11,57 @@ import java.util.Stack;
 public abstract class Parser {
     private static int index = 0;
 
+    private static JsonArrayObject getJsonArrayObject(String source) throws SyntaxException {
+        JsonArrayObject jsonArrayObj = new JsonArrayObject();
+        char prevCh = '[';
+        boolean isSaveSpace = false;
+        StringBuilder strBuilder = new StringBuilder();
+
+        while (index < source.length()) {
+            char ch = source.charAt(index);
+            switch (ch) {
+                case '[':
+
+                    break;
+
+                case '{':
+                    jsonArrayObj.add(getJsonObject(source));
+                    break;
+
+                case ',':
+
+                case ']':
+                    if (prevCh != '{') {
+                        jsonArrayObj.add(setValue(strBuilder.toString()));
+                    }
+                    strBuilder.setLength(0);
+                    if (ch != ',' && index != source.length() - 1) {
+                        return jsonArrayObj;
+                    }
+                    break;
+
+                case '"':
+                    isSaveSpace = prevCh != '"';
+                    if (prevCh != '"') {
+                        strBuilder.setLength(0);
+                    }
+                    break;
+
+                default:
+                    if (ch == ' ' && !isSaveSpace) {
+                        break;
+                    }
+                    strBuilder.append(ch);
+                    break;
+            }
+            if (Utils.sysCharJson.contains(ch)) {
+                prevCh = ch;
+            }
+            index++;
+        }
+        return jsonArrayObj;
+    }
+
     /**
      * Get JSON object from string
      * @param source Not null - string JSON
@@ -22,89 +73,59 @@ public abstract class Parser {
         Validator.isValidJsonText(source);
         // Next code will used if source is valid JSON text
         JsonObject jsonObj = new JsonObject();
-        Stack<JsonArrayObject> jsonArrayObjectStack = new Stack<>();
-        String key = "",
-                value;
-        char prevChar = ' ';
+        String key = "";
+        char prevCh = ' ';
+        boolean isSaveSpace = false;
         StringBuilder strBuilder = new StringBuilder();
-        boolean isSaveKey = false,
-                isSaveValue = false,
-                isSaveSpace = false;
-        Stack<Boolean> isSaveToArrayStack = new Stack<>();
-        // TODO: Refactor
+
         do {
             char ch = source.charAt(index);
             switch (ch) {
                 case '{':
-                    if (prevChar == ':') {
+                    if (prevCh == ':') {
                         // Recursive
                         jsonObj.addKeyAndValue(key, getJsonObject(source));
                     }
-                    isSaveKey = true;
-                    break;
-
-                case ':':
-                    key = strBuilder.toString();
-                    isSaveKey = false;
-                    strBuilder.setLength(0);
-                    isSaveValue = true;
                     break;
 
                 case ',':
 
                 case '}':
-                    if (!isSaveToArrayStack.isEmpty() && prevChar != ']' && prevChar != '}') {
-                        jsonArrayObjectStack.peek().add(setValue(strBuilder.toString()));
-                        strBuilder.setLength(0);
-                        break;
+                    if (prevCh != '{' && prevCh != '[') {
+                        jsonObj.addKeyAndValue(key, setValue(strBuilder.toString()));
                     }
-                    if (prevChar == ']') {
-                        jsonArrayObjectStack.pop().add(setValue(strBuilder.toString()));
-                        strBuilder.setLength(0);
-                        break;
+                    if (ch != ',' && index != source.length() - 1) {
+                        return jsonObj;
                     }
-                    value = strBuilder.toString();
-                    if (prevChar != '{' && prevChar != '}')
-                        jsonObj.addKeyAndValue(key, prevChar == ':' ?
-                                setValue(value) :
-                                value);
-                    // Return from recursive
-                    if (ch == '}' && index != source.length() - 1) return jsonObj;
                     break;
 
-                case '[':
-                    if (jsonArrayObjectStack.isEmpty()) {
-                        jsonArrayObjectStack.push(new JsonArrayObject());
-                        jsonObj.addKeyAndValue(key, jsonArrayObjectStack.peek());
-                    } else {
-                        JsonArrayObject lastArray = jsonArrayObjectStack.peek();
-                        jsonArrayObjectStack.push(new JsonArrayObject());
-                        JsonObject buf = new JsonObject();
-                        buf.addKeyAndValue(key, jsonArrayObjectStack.peek());
-                        lastArray.add(buf);
-                    }
-                    isSaveToArrayStack.push(true);
-                    //isSaveValue = false;
-                    break;
-
-                case ']':
-                    // Is valid JSON text, exception don't may
-                    isSaveToArrayStack.pop();
+                case ':':
+                    key = strBuilder.toString();
+                    // Reset builder
+                    strBuilder.setLength(0);
                     break;
 
                 case '"':
-                    isSaveSpace = true;
-                    if (prevChar == '"') isSaveSpace = false;
-                    else strBuilder.setLength(0);
+                    isSaveSpace = prevCh != '"';
+                    if (prevCh != '"') {
+                        strBuilder.setLength(0);
+                    }
+                    break;
+
+                case '[':
+                    jsonObj.addKeyAndValue(key, getJsonArrayObject(source));
                     break;
 
                 default:
-                    if (ch == ' ' && !isSaveSpace) break;
-                    //if (isSaveKey || isSaveValue || isSaveSpace || isSaveToArray) strBuilder.append(ch);
+                    if (ch == ' ' && !isSaveSpace) {
+                        break;
+                    }
                     strBuilder.append(ch);
                     break;
             }
-            if (Utils.sysCharJson.contains(ch)) prevChar = ch;
+            if (Utils.sysCharJson.contains(ch)) {
+                prevCh = ch;
+            }
             index++;
         } while (index < source.length());
         // Reset static index

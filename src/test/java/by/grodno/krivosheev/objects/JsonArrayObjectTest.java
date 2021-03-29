@@ -12,7 +12,7 @@ class JsonArrayObjectTest {
         jsonArrayObject.add("String");
         jsonArrayObject.add(123456789);
         jsonArrayObject.add(true);
-        assertEquals("[ \"String\", 123456789, true ]", jsonArrayObject.toString());
+        assertEquals("[\"String\",123456789,true]", jsonArrayObject.toString());
     }
 
 }

@@ -16,8 +16,8 @@ class JsonObjectTest {
 
     @Test
     void testToString() {
-        assertEquals("{ \"key\": \"VALUE\", \"number\": 123456789, \"bool\": false, " +
-                "\"object_JSON\": { \"work?\": \"YES\" }, \"array\": [ 1, \"str\", 3 ], \"add_key\": true }",
+        assertEquals("{\"key\":\"VALUE\",\"number\":123456789,\"bool\":false," +
+                "\"object_JSON\":{\"work?\":\"YES\"},\"array\":[1,\"str\",3],\"add_key\":true}",
                 jsonObj.toString());
     }
 

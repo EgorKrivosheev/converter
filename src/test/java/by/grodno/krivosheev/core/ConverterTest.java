@@ -20,8 +20,8 @@ class ConverterTest {
 
     @Test
     void testXmlToJson() {
-        assertEquals("{ \"string\": \"TEXT\", \"object_XML\": { \"string\": \"It_too_TEXT\", " +
-                "\"nested_obj_XML\": { \"key\": \"VALUE\" } }, \"work?\": \"YES\" }",
+        assertEquals("{\"string\":\"TEXT\",\"object_XML\":{\"string\":\"It_too_TEXT\"," +
+                "\"nested_obj_XML\":{\"key\":\"VALUE\"}},\"work?\":\"YES\"}",
                 Converter.xmlToJson(xmlObj).toString());
     }
 

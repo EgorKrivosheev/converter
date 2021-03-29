@@ -8,11 +8,26 @@ class ParserTest {
 
     @Test
     void getJsonObject() throws SyntaxException {
-        String jsonText = "{\"array\": [{\"name\": \"NAME\"},{\"age\": 22}], \"bool\": true, " +
-                "\"object_JSON\": {\"work?\": \"YES\"} }";
+        String jsonText =
+                "{" +
+                    "\"json_obj\": {" +
+                        "\"str\": \"STRING 1\"," +
+                        "\"json_obj\": {" +
+                            "\"str\": \"STRING 2\"," +
+                            "\"json_obj\": {" +
+                                "\"number\": 1," +
+                                "\"boolean\": true," +
+                                "\"array\": [" +
+                                    "\"item 1\", \"item 2\"" +
+                                ", {\"obj item 3\": \"STRING 3\"}]" +
+                            "}" +
+                        "}" +
+                    "}" +
+                "}";
 
-        assertEquals("{ \"array\": [{\"name\": \"NAME\"},{\"age\": 22}], \"bool\": true, " +
-                        "\"object_JSON\": { \"work?\": \"YES\" } }", Parser.getJsonObject(jsonText).toString());
+        assertEquals("{\"json_obj\":{\"str\":\"STRING 1\",\"json_obj\":{\"str\":\"STRING 2\"," +
+                "\"json_obj\":{\"number\":1,\"boolean\":true,\"array\":[\"item 1\",\"item 2\"," +
+                "{\"obj item 3\":\"STRING 3\"}]}}}}", Parser.getJsonObject(jsonText).toString());
 
     }
 
