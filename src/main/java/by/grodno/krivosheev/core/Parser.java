@@ -94,6 +94,7 @@ public abstract class Parser {
                     if (prevCh != '{' && prevCh != '[') {
                         jsonObj.addKeyAndValue(key, setValue(strBuilder.toString()));
                     }
+                    // Return from recursive
                     if (ch != ',' && index != source.length() - 1) {
                         return jsonObj;
                     }
@@ -282,5 +283,4 @@ public abstract class Parser {
         }
         return str;
     }
-
 }

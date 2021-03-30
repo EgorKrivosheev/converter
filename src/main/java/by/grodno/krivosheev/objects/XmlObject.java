@@ -6,6 +6,8 @@ import by.grodno.krivosheev.core.SyntaxException;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.stream.Collectors;
+
 public class XmlObject extends AbstractObject {
     public XmlObject() {
         super();
@@ -24,13 +26,8 @@ public class XmlObject extends AbstractObject {
     public String toString() {
         if (this.isEmpty()) return null;
 
-        StringBuilder builder = new StringBuilder();
-        for (String key : this.getMap().keySet()) {
-            builder.append("<").append(key).append(">")
-                .append(this.getMap().get(key))
-                    .append("</").append(key).append(">");
-        }
-        return builder.toString();
+        return this.getMap().keySet().stream()
+                .map(key -> "<" + key + ">" + this.getObject(key) + "</" + key + ">")
+                .collect(Collectors.joining(""));
     }
-
 }

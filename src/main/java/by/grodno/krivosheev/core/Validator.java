@@ -1,11 +1,8 @@
 package by.grodno.krivosheev.core;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Stack;
 
 abstract class Validator {
-
     /**
      * Checks {@code text} is valid string json
      * @param text JSON string
@@ -44,6 +41,9 @@ abstract class Validator {
                     if (stackNeedKey.isEmpty() && stackNeedValue.isEmpty()) {
                         throw new SyntaxException("index: " + (index + 1) + " need symbol '{'");
                     }
+                    if (prevCh == '}' || prevCh == ']') {
+                        throw new SyntaxException("index: " + (index + 1) + " need symbol ','");
+                    }
                     isOpen = prevCh != '"';
                     break;
 
@@ -51,13 +51,11 @@ abstract class Validator {
                     if (isOpen) {
                         throw new SyntaxException("index: " + (index + 1) + " need symbol '\"'");
                     }
-                    if (stackNeedKey.isEmpty() && prevCh != '"') {
-                        throw new SyntaxException("index: " + (index + 1) + " need \"...\"");
-                    }
-                    if (!stackOpenArray.isEmpty()) {
-                        if (stackNeedKey.isEmpty()) {
+                    if (stackNeedKey.isEmpty() || prevCh != '"') {
+                        if (!stackOpenArray.isEmpty()) {
                             throw new SyntaxException("index: " + (index + 1) + " need symbol '{'");
                         }
+                        throw new SyntaxException("index: " + (index + 1) + " need \"...\"");
                     }
                     stackNeedKey.pop();
                     stackNeedValue.push(true);
@@ -128,11 +126,6 @@ abstract class Validator {
      */
     public static boolean isValidXmlText(String text) throws SyntaxException {
         int index = 0;
-        HashSet<Character> sysChar = new HashSet<>(
-                Arrays.asList(
-                        '<', '>', '/'
-                )
-        );
         Stack<Character> stackPrevChar = new Stack<>();
         // TODO:
         while (index < text.length()) {
@@ -150,10 +143,9 @@ abstract class Validator {
 
                     break;
             }
-            if (sysChar.contains(ch)) stackPrevChar.push(ch);
+            if (Utils.sysCharXml.contains(ch)) stackPrevChar.push(ch);
             index++;
         }
         return true;
     }
-
 }

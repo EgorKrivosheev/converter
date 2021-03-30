@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
-
     @Test
     void getJsonObject() throws SyntaxException {
         String jsonText =
@@ -78,5 +77,4 @@ class ParserTest {
         assertEquals(Float.class, Parser.setValue("8.901").getClass());
         assertEquals(Double.class, Parser.setValue("-234567890123456.78901234567890123456789").getClass());
     }
-
 }

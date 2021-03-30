@@ -28,10 +28,9 @@ public class JsonObject extends AbstractObject {
         if (this.isEmpty()) return null;
 
         return this.getMap().keySet().stream()
-            .map(key -> Utils.classes.contains(this.getMap().get(key).getClass()) ?
-                    "\"" + key + "\":" + this.getMap().get(key) :
-                    "\"" + key + "\":\"" + this.getMap().get(key) + "\"")
+            .map(key -> Utils.classes.contains(this.getObject(key).getClass()) ?
+                    "\"" + key + "\":" + this.getObject(key) :
+                    "\"" + key + "\":\"" + this.getObject(key) + "\"")
             .collect(Collectors.joining(",", "{", "}"));
     }
-
 }

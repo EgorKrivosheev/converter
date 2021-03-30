@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 public interface Utils {
-
     /**
      * Classes whom don't print between symbols "..."
      */
@@ -27,4 +26,12 @@ public interface Utils {
             )
     );
 
+    /**
+     * System chars XML
+     */
+    HashSet<Character> sysCharXml = new HashSet<>(
+            Arrays.asList(
+                    '<', '>', '/'
+            )
+    );
 }

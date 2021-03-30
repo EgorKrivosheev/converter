@@ -35,8 +35,11 @@ public abstract class AbstractObject {
 
     public abstract String toString();
 
+    protected Object getObject(String key) {
+        return this.object.get(key);
+    }
+
     public boolean isEmpty() {
         return this.object.isEmpty();
     }
-
 }

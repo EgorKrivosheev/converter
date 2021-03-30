@@ -8,11 +8,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConverterTest {
-    private final JsonObject jsonObj = new JsonObject("{ \"string\": \"TEXT\", \"object_JSON\": { " +
-            "\"string\": \"It_too_TEXT\", \"number\": 12345 }, \"work?\": \"YES\" }");
-    private final XmlObject xmlObj = new XmlObject("<string>TEXT</string><object_XML>" +
-            "<string>It_too_TEXT</string><nested_obj_XML><key>VALUE</key></nested_obj_XML></object_XML>" +
-            "<work?>YES</work?>");
+    private final JsonObject jsonObj = new JsonObject("{" +
+                "\"key\": \"value\"," +
+                "\"object\": {" +
+                    "\"boolean\": true" +
+                "}," +
+                "\"array\": [" +
+                    "1, {\"float\": 2.3}, \"str\"" +
+                "]" +
+            "}");
+    private final XmlObject xmlObj = new XmlObject("" +
+            "<key>value</key>" +
+            "<object>" +
+                "<boolean>true</boolean>" +
+            "</object>");
 
     ConverterTest() throws SyntaxException {
 
@@ -20,15 +29,14 @@ class ConverterTest {
 
     @Test
     void testXmlToJson() {
-        assertEquals("{\"string\":\"TEXT\",\"object_XML\":{\"string\":\"It_too_TEXT\"," +
-                "\"nested_obj_XML\":{\"key\":\"VALUE\"}},\"work?\":\"YES\"}",
+        assertEquals("{\"key\":\"value\",\"object\":{\"boolean\":\"true\"}}",
                 Converter.xmlToJson(xmlObj).toString());
     }
 
     @Test
     void testJsonToXml() {
-        assertEquals("<string>TEXT</string><object_JSON><string>It_too_TEXT</string><number>12345</number>" +
-                "</object_JSON><work?>YES</work?>", Converter.jsonToXml(jsonObj).toString());
+        assertEquals("<key>value</key><object><boolean>true</boolean></object><array><element>1</element>" +
+                "<element><float>2.3</float></element><element>str</element></array>",
+                Converter.jsonToXml(jsonObj).toString());
     }
-
 }

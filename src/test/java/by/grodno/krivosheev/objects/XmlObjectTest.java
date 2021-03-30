@@ -19,5 +19,4 @@ class XmlObjectTest {
         assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string></object_XML>" +
                 "<work?>YES</work?>", objXML.toString());
     }
-
 }

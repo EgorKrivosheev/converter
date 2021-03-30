@@ -7,8 +7,22 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonObjectTest {
-    private final JsonObject jsonObj = new JsonObject("{ \"key\": \"VALUE\", \"number\": 123456789, " +
-            "\"bool\": false, \"object_JSON\": { \"work?\": YES }, \"array\": [ 1, \"str\", 3 ], \"add_key\": true }");
+    private final JsonObject jsonObj = new JsonObject("{" +
+                "\"byte\": 123," +
+                "\"short\": -4567," +
+                "\"integer\": 890123," +
+                "\"long\": -4567890123456," +
+                "\"array\": [" +
+                    "\"item 1\", 2" +
+                "]," +
+                "\"string\": \"789012345678901234567\"," +
+                "\"object\": {" +
+                    "\"boolean1\": true," +
+                    "\"boolean2\": false" +
+                "}," +
+                "\"float\": 8.901," +
+                "\"double\": -234567890123456.78901234567890123456789" +
+            "}");
 
     JsonObjectTest() throws SyntaxException {
 
@@ -16,9 +30,8 @@ class JsonObjectTest {
 
     @Test
     void testToString() {
-        assertEquals("{\"key\":\"VALUE\",\"number\":123456789,\"bool\":false," +
-                "\"object_JSON\":{\"work?\":\"YES\"},\"array\":[1,\"str\",3],\"add_key\":true}",
-                jsonObj.toString());
+        assertEquals("{\"byte\":123,\"short\":-4567,\"integer\":890123,\"long\":-4567890123456," +
+                "\"array\":[\"item 1\",2],\"string\":\"789012345678901234567\",\"object\":{\"boolean1\":true," +
+                "\"boolean2\":false},\"float\":8.901,\"double\":-2.3456789012345678E14}", jsonObj.toString());
     }
-
 }

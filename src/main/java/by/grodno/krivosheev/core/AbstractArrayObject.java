@@ -21,10 +21,11 @@ public abstract class AbstractArrayObject {
         return this.value;
     }
 
-    public abstract String toString();
+    public String toString() {
+        return "null";
+    }
 
     public boolean isEmpty() {
         return this.value.isEmpty();
     }
-
 }

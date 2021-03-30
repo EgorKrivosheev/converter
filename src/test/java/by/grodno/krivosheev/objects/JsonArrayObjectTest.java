@@ -14,5 +14,4 @@ class JsonArrayObjectTest {
         jsonArrayObject.add(true);
         assertEquals("[\"String\",123456789,true]", jsonArrayObject.toString());
     }
-
 }

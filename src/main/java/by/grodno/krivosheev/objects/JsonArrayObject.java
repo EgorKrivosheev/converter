@@ -20,5 +20,4 @@ public class JsonArrayObject extends AbstractArrayObject {
                         "\"" + obj + "\"")
                 .collect(Collectors.joining(",", "[", "]"));
     }
-
 }
