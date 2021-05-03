@@ -12,8 +12,8 @@ public interface Utils {
      */
     HashSet<Object> classes = new HashSet<>(
             Arrays.asList(
-                    JsonObject.class, Byte.class, Short.class, Integer.class, Long.class, Float.class,
-                    Double.class, Boolean.class, JsonArrayObject.class
+                    JsonObject.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Boolean.class,
+                    JsonArrayObject.class
             )
     );
 

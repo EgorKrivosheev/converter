@@ -89,7 +89,6 @@ abstract class Validator {
                         break;
                     }
                     stackNeedKey.push(true);
-
                 case '}':
                     if (isOpen) {
                         throw new SyntaxException("index: " + (index + 1) + " need symbol '\"'");
@@ -103,7 +102,9 @@ abstract class Validator {
                     stackNeedValue.pop();
                     break;
             }
-            if (Utils.sysCharJson.contains(ch)) stackPrevChar.push(ch);
+            if (Utils.sysCharJson.contains(ch)) {
+                stackPrevChar.push(ch);
+            }
             index++;
         }
         if (!stackNeedKey.isEmpty()) {
@@ -127,24 +128,70 @@ abstract class Validator {
     public static boolean isValidXmlText(String text) throws SyntaxException {
         int index = 0;
         Stack<Character> stackPrevChar = new Stack<>();
-        // TODO:
+        // If open symbol '<'
+        boolean isOpenTag = false;
+        Stack<String> stackNeedCloseTag = new Stack<>();
+        StringBuilder strBuilder = new StringBuilder();
+        // If this stack empty => throw syntax exception
+        stackPrevChar.push(' ');
+
         while (index < text.length()) {
             char ch = text.charAt(index);
+            if (stackPrevChar.isEmpty()) {
+                throw new SyntaxException("index: " + (index + 1));
+            }
+            char prevCh = stackPrevChar.peek();
             switch (ch) {
                 case '<':
-
+                    if (isOpenTag) {
+                        throw new SyntaxException("index: " + (index + 1) + " previous symbol cannot be '<'");
+                    }
+                    isOpenTag = true;
+                    strBuilder.setLength(0);
                     break;
 
                 case '>':
-
+                    if (!isOpenTag) {
+                        throw new SyntaxException("index: " + (index + 1) + " need symbol '<'");
+                    }
+                    isOpenTag = false;
+                    if (prevCh == '<') {
+                        stackNeedCloseTag.push(strBuilder.toString());
+                    }
+                    if (prevCh == '/') {
+                        if (!strBuilder.toString().equals(stackNeedCloseTag.peek())) {
+                            throw new SyntaxException("index: " + (index + 1) + " opened tag '<" + stackNeedCloseTag.peek() + ">' closing tag '</" +
+                                    strBuilder + ">'");
+                        }
+                        stackNeedCloseTag.pop();
+                    }
                     break;
 
                 case '/':
+                    if (!isOpenTag) {
+                        throw new SyntaxException("index: " + (index + 1) + " need symbol '<'");
+                    }
+                    if (stackNeedCloseTag.isEmpty()) {
+                        throw new SyntaxException("index: " + index + " need open tag '<...>'");
+                    }
+                    break;
 
+                default:
+                    if (prevCh == '<' || prevCh == '/') {
+                        strBuilder.append(ch);
+                    }
                     break;
             }
-            if (Utils.sysCharXml.contains(ch)) stackPrevChar.push(ch);
+            if (Utils.sysCharXml.contains(ch)) {
+                stackPrevChar.push(ch);
+            }
             index++;
+        }
+        if (isOpenTag) {
+            throw new SyntaxException("open symbol '<' need symbol '>'");
+        }
+        if (!stackNeedCloseTag.isEmpty()) {
+            throw new SyntaxException("opened tag '<" + stackNeedCloseTag.peek() + ">' need closing tag '</" + stackNeedCloseTag.peek() + ">'");
         }
         return true;
     }

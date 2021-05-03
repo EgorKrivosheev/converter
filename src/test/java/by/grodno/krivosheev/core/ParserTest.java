@@ -17,27 +17,41 @@ class ParserTest {
                                 "\"number\": 1," +
                                 "\"boolean\": true," +
                                 "\"array\": [" +
-                                    "\"item 1\", \"item 2\"" +
-                                ", {\"obj item 3\": \"STRING 3\"}]" +
+                                    "\"item 1\", \"item 2\", {\"obj item 3\": \"STRING 3\"}" +
+                                "]" +
                             "}" +
                         "}" +
                     "}" +
                 "}";
 
-        assertEquals("{\"json_obj\":{\"str\":\"STRING 1\",\"json_obj\":{\"str\":\"STRING 2\"," +
-                "\"json_obj\":{\"number\":1,\"boolean\":true,\"array\":[\"item 1\",\"item 2\"," +
-                "{\"obj item 3\":\"STRING 3\"}]}}}}", Parser.getJsonObject(jsonText).toString());
-
+        assertEquals("{\"json_obj\":{\"str\":\"STRING 1\",\"json_obj\":{\"str\":\"STRING 2\",\"json_obj\":{\"number\":1,\"boolean\":true,\"array\":" +
+                "[\"item 1\",\"item 2\",{\"obj item 3\":\"STRING 3\"}]}}}}", Parser.getJsonObject(jsonText).toString());
     }
 
     @Test
     void getXmlObject() throws SyntaxException {
-        String xmlText = "<string>TEXT</string><object_XML><string>It_too_TEXT</string><nested_obj_XML>" +
-                "<key>VALUE</key></nested_obj_XML></object_XML><work?>YES</work?>";
+        String xmlText =
+                "<xml_obj>" +
+                    "<str>STRING 1</str>" +
+                    "<xml_obj>" +
+                        "<str>STRING 2</str>" +
+                        "<xml_obj>" +
+                            "<number>1</number>" +
+                            "<boolean>true</boolean>" +
+                            "<array>" +
+                                "<element>item 1</element>" +
+                                "<element>item 2</element>" +
+                                "<element>" +
+                                    "<obj item 3>STRING 3</obj item 3>" +
+                                "</element>" +
+                            "</array>" +
+                        "</xml_obj>" +
+                    "</xml_obj>" +
+                "</xml_obj>";
 
-        assertEquals("<string>TEXT</string><object_XML><string>It_too_TEXT</string><nested_obj_XML>" +
-                "<key>VALUE</key></nested_obj_XML></object_XML><work?>YES</work?>",
-                Parser.getXmlObject(xmlText).toString());
+        assertEquals("<xml_obj><str>STRING 1</str><xml_obj><str>STRING 2</str><xml_obj><number>1</number><boolean>true</boolean><array>" +
+                "<element>item 1</element><element>item 2</element><element><obj item 3>STRING 3</obj item 3></element></array></xml_obj></xml_obj>" +
+                "</xml_obj>", Parser.getXmlObject(xmlText).toString());
     }
 
     @Test

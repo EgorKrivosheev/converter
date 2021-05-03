@@ -17,15 +17,15 @@ public abstract class AbstractArrayObject {
         this.value.add(obj);
     }
 
-    protected List<Object> getValue() {
-        return this.value;
-    }
-
     public String toString() {
         return "null";
     }
 
     public boolean isEmpty() {
         return this.value.isEmpty();
+    }
+
+    protected List<Object> getValue() {
+        return this.value;
     }
 }

@@ -7,7 +7,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ValidatorTest {
     @Test
     void testJsonText() throws SyntaxException {
-        assertTrue(Validator.isValidJsonText("{" +
+        assertTrue(Validator.isValidJsonText(
+                "{" +
                     "\"key\": \"value\"," +
                     "\"object\": {" +
                         "\"object\": {" +
@@ -33,10 +34,29 @@ class ValidatorTest {
 
     @Test
     void testXmlText() throws SyntaxException {
-        assertTrue(Validator.isValidXmlText("<key>VALUE</key>"));
+        assertTrue(Validator.isValidXmlText(
+                "<key>value</key>" +
+                "<object>" +
+                    "<object>" +
+                        "<object>" +
+                            "<boolean>true</boolean>" +
+                        "</object>" +
+                    "</object>" +
+                    "<byte>0</byte>" +
+                "</object>" +
+                "<array>" +
+                    "<element>1</element>" +
+                    "<element>2</element>" +
+                    "<element>" +
+                        "<float>3.33</float>" +
+                    "</element>" +
+                    "<element>4</element>" +
+                    "<element>5</element>" +
+                    "<element>str</element>" +
+                "</array>"));
 
         String[] arrayErrorXmlText = {
-                "<", "<Key", "<key>", "<key>value", "<key>VALUE</key1>", "<key><key2>VALUE</key>"
+                ">", "/", "<", "<key>", "</key>", "<key<", "<key>value</ke>"
         };
         for (String errorXmlText : arrayErrorXmlText) {
             assertThrows(SyntaxException.class, () -> Validator.isValidXmlText(errorXmlText));

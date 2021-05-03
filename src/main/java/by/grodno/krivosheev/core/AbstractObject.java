@@ -19,8 +19,10 @@ public abstract class AbstractObject {
         this.object = map;
     }
 
-    protected Map<String, Object> getMap() {
-        return object;
+    public abstract String toString();
+
+    public boolean isEmpty() {
+        return this.object.isEmpty();
     }
 
     /**
@@ -33,13 +35,11 @@ public abstract class AbstractObject {
         return this.object.put(key, value);
     }
 
-    public abstract String toString();
+    protected Map<String, Object> getMap() {
+        return object;
+    }
 
     protected Object getObject(String key) {
         return this.object.get(key);
-    }
-
-    public boolean isEmpty() {
-        return this.object.isEmpty();
     }
 }

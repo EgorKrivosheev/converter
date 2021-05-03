@@ -9,9 +9,9 @@ class XmlArrayObjectTest {
 
     @Test
     void testToString() {
-        xmlArrayObject.add(false);
-        xmlArrayObject.add(-98);
-        xmlArrayObject.add("str");
-        assertEquals("<element>false</element><element>-98</element><element>str</element>", xmlArrayObject.toString());
+        xmlArrayObject.add("String");
+        xmlArrayObject.add(123456789);
+        xmlArrayObject.add(true);
+        assertEquals("<element>String</element><element>123456789</element><element>true</element>", xmlArrayObject.toString());
     }
 }

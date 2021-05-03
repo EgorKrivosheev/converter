@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConverterTest {
-    private final JsonObject jsonObj = new JsonObject("{" +
+    private final JsonObject jsonObj = new JsonObject(
+            "{" +
                 "\"key\": \"value\"," +
                 "\"object\": {" +
                     "\"boolean\": true" +
@@ -17,11 +18,16 @@ class ConverterTest {
                     "1, {\"float\": 2.3}, \"str\"" +
                 "]" +
             "}");
-    private final XmlObject xmlObj = new XmlObject("" +
+    private final XmlObject xmlObj = new XmlObject(
             "<key>value</key>" +
             "<object>" +
                 "<boolean>true</boolean>" +
-            "</object>");
+            "</object>" +
+            "<array>" +
+                "<element>1</element>" +
+                "<element><float>2.3</float></element>" +
+                "<element>str</element>" +
+            "</array>");
 
     ConverterTest() throws SyntaxException {
 
@@ -29,14 +35,12 @@ class ConverterTest {
 
     @Test
     void testXmlToJson() {
-        assertEquals("{\"key\":\"value\",\"object\":{\"boolean\":\"true\"}}",
-                Converter.xmlToJson(xmlObj).toString());
+        assertEquals("{\"key\":\"value\",\"object\":{\"boolean\":true},\"array\":[1,{\"float\":2.3},\"str\"]}", Converter.xmlToJson(xmlObj).toString());
     }
 
     @Test
     void testJsonToXml() {
-        assertEquals("<key>value</key><object><boolean>true</boolean></object><array><element>1</element>" +
-                "<element><float>2.3</float></element><element>str</element></array>",
-                Converter.jsonToXml(jsonObj).toString());
+        assertEquals("<key>value</key><object><boolean>true</boolean></object><array><element>1</element><element><float>2.3</float></element>" +
+                "<element>str</element></array>", Converter.jsonToXml(jsonObj).toString());
     }
 }
