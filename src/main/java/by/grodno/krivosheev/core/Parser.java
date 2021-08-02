@@ -222,11 +222,11 @@ public abstract class Parser {
     }
 
     protected static boolean isIntNumber(@NotNull String str) {
-        return str.matches("(?:-)?\\d+");
+        return str.matches("-?\\d+");
     }
 
     protected static boolean isDecNumber(@NotNull String str) {
-        return str.matches("(?:-)?\\d+\\.\\d+");
+        return str.matches("-?\\d+\\.\\d+");
     }
 
     private static JsonArrayObject getJsonArrayObject(@NotNull String source) throws SyntaxException {
