@@ -39,23 +39,17 @@ public abstract class Converter {
                 object instanceof JsonObject ?
                         new XmlObject() :
                         // Maybe is bad practice...
-                        new AbstractObject() {
-                            @Override
-                            public String toString() {
-                                return null;
-                            }
-                        };
+                        new AbstractObject() {};
 
-        for (String key : object.getMap().keySet()) {
-            if (object.getObject(key) instanceof XmlObject || object.getObject(key) instanceof JsonObject) {
-                // Recursive
-                newObj.addKeyAndValue(key, convertObject((AbstractObject) object.getObject(key)));
-            } else if (object.getObject(key) instanceof XmlArrayObject || object.getObject(key) instanceof JsonArrayObject) {
-                newObj.addKeyAndValue(key, convertArray((AbstractArrayObject) object.getObject(key)));
-            } else {
-                newObj.addKeyAndValue(key, object.getObject(key));
-            }
-        }
+        object.getMap().keySet()
+                .forEach(key -> newObj.addKeyAndValue(key, object.getObject(key) instanceof AbstractObject ?
+                        // Recursive
+                        convertObject((AbstractObject) object.getObject(key)) :
+                        object.getObject(key) instanceof AbstractArrayObject ?
+                                convertArray((AbstractArrayObject) object.getObject(key)) :
+                                object.getObject(key)
+                        )
+                );
         return newObj;
     }
 
@@ -71,16 +65,15 @@ public abstract class Converter {
                         new XmlArrayObject() :
                         new AbstractArrayObject() {};
 
-        for (Object o : array.getValue()) {
-            if (o instanceof XmlArrayObject || o instanceof JsonArrayObject) {
-                // Recursive
-                newArray.add(convertArray((AbstractArrayObject) o));
-            } else if (o instanceof XmlObject || o instanceof JsonObject) {
-                newArray.add(convertObject((AbstractObject) o));
-            } else {
-                newArray.add(o);
-            }
-        }
+        array.getValue()
+                .forEach(o -> newArray.add(o instanceof AbstractArrayObject ?
+                        // Recursive
+                        convertArray((AbstractArrayObject) o) :
+                        o instanceof AbstractObject ?
+                                convertObject((AbstractObject) o) :
+                                o
+                        )
+                );
         return newArray;
     }
 }

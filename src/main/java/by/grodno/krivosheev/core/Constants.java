@@ -6,11 +6,17 @@ import by.grodno.krivosheev.objects.JsonObject;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public interface Utils {
+public abstract class Constants {
+    public enum tagXml {
+        INIT, // For initialize
+        OpenTag,
+        CloseTag
+    }
+
     /**
      * Classes whom don't print between symbols "..."
      */
-    HashSet<Object> classes = new HashSet<>(
+    public static HashSet<Object> classes = new HashSet<>(
             Arrays.asList(
                     JsonObject.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Boolean.class,
                     JsonArrayObject.class
@@ -20,7 +26,7 @@ public interface Utils {
     /**
      * System chars JSON
      */
-    HashSet<Character> sysCharJson = new HashSet<>(
+    public static HashSet<Character> sysCharJson = new HashSet<>(
             Arrays.asList(
                     '{', ':', ',', '}', '"', '[', ']'
             )
@@ -29,7 +35,7 @@ public interface Utils {
     /**
      * System chars XML
      */
-    HashSet<Character> sysCharXml = new HashSet<>(
+    public static HashSet<Character> sysCharXml = new HashSet<>(
             Arrays.asList(
                     '<', '>', '/'
             )

@@ -19,7 +19,9 @@ public abstract class AbstractObject {
         this.object = map;
     }
 
-    public abstract String toString();
+    public String toString() {
+        return null;
+    }
 
     public boolean isEmpty() {
         return this.object.isEmpty();

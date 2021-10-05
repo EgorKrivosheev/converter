@@ -3,7 +3,7 @@ package by.grodno.krivosheev.objects;
 import by.grodno.krivosheev.core.AbstractObject;
 import by.grodno.krivosheev.core.Parser;
 import by.grodno.krivosheev.core.SyntaxException;
-import by.grodno.krivosheev.core.Utils;
+import by.grodno.krivosheev.core.Constants;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +28,7 @@ public class JsonObject extends AbstractObject {
         if (this.isEmpty()) return null;
 
         return this.getMap().keySet().stream()
-            .map(key -> Utils.classes.contains(this.getObject(key).getClass()) ?
+            .map(key -> Constants.classes.contains(this.getObject(key).getClass()) ?
                     "\"" + key + "\":" + this.getObject(key) :
                     "\"" + key + "\":\"" + this.getObject(key) + "\"")
             .collect(Collectors.joining(",", "{", "}"));

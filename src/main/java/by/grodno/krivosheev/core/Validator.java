@@ -102,7 +102,7 @@ abstract class Validator {
                     stackNeedValue.pop();
                     break;
             }
-            if (Utils.sysCharJson.contains(ch)) {
+            if (Constants.sysCharJson.contains(ch)) {
                 stackPrevChar.push(ch);
             }
             index++;
@@ -182,7 +182,7 @@ abstract class Validator {
                     }
                     break;
             }
-            if (Utils.sysCharXml.contains(ch)) {
+            if (Constants.sysCharXml.contains(ch)) {
                 stackPrevChar.push(ch);
             }
             index++;

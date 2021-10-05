@@ -11,11 +11,6 @@ import java.util.Stack;
 
 public abstract class Parser {
     private static int index = 0;
-    private enum tagXml {
-        INIT, // For initialize
-        OpenTag,
-        CloseTag
-    }
 
     /**
      * Get JSON object from string
@@ -78,7 +73,7 @@ public abstract class Parser {
                     strBuilder.append(ch);
                     break;
             }
-            if (Utils.sysCharJson.contains(ch)) {
+            if (Constants.sysCharJson.contains(ch)) {
                 prevCh = ch;
             }
             index++;
@@ -104,7 +99,7 @@ public abstract class Parser {
         String value = "";
         Stack<Object> linkStack = new Stack<>();
         StringBuilder strBuilder = new StringBuilder();
-        tagXml last = tagXml.INIT;
+        Constants.tagXml last = Constants.tagXml.INIT;
         // Default save to xml object
         linkStack.push(objXML);
 
@@ -117,7 +112,7 @@ public abstract class Parser {
 
                 case '>':
                     if (prevCh == '/') {
-                        if (last == tagXml.CloseTag) {
+                        if (last == Constants.tagXml.CloseTag) {
                             if (!strBuilder.toString().equalsIgnoreCase("element")) {
                                 linkStack.pop();
                             }
@@ -138,11 +133,11 @@ public abstract class Parser {
                                 ((XmlArrayObject) linkStack.peek()).add(bufObj);
                             }
                         }
-                        last = tagXml.CloseTag;
+                        last = Constants.tagXml.CloseTag;
                         strBuilder.setLength(0);
                         break;
                     }
-                    if (last == tagXml.OpenTag) {
+                    if (last == Constants.tagXml.OpenTag) {
                         if (linkStack.peek() instanceof XmlObject) {
                             ((XmlObject) linkStack.peek()).addKeyAndValue(key.peek(), strBuilder.toString().equalsIgnoreCase("element") ?
                                     linkStack.push(new XmlArrayObject()) :
@@ -150,7 +145,7 @@ public abstract class Parser {
                         }
                     }
                     key.push(strBuilder.toString());
-                    last = tagXml.OpenTag;
+                    last = Constants.tagXml.OpenTag;
                     strBuilder.setLength(0);
                     break;
 
@@ -163,7 +158,7 @@ public abstract class Parser {
                     strBuilder.append(ch);
                     break;
             }
-            if (Utils.sysCharXml.contains(ch)) {
+            if (Constants.sysCharXml.contains(ch)) {
                 prevCh = ch;
             }
             index++;
@@ -271,7 +266,7 @@ public abstract class Parser {
                     strBuilder.append(ch);
                     break;
             }
-            if (Utils.sysCharJson.contains(ch)) {
+            if (Constants.sysCharJson.contains(ch)) {
                 prevCh = ch;
             }
             index++;
