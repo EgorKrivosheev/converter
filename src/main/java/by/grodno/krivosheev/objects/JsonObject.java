@@ -5,8 +5,6 @@ import by.grodno.krivosheev.core.Parser;
 import by.grodno.krivosheev.core.SyntaxException;
 import by.grodno.krivosheev.core.Constants;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.stream.Collectors;
 
 public class JsonObject extends AbstractObject {
@@ -16,10 +14,10 @@ public class JsonObject extends AbstractObject {
 
     /**
      * Construct ObjectJSON
-     * @param source Not null - string JSON
+     * @param source String JSON
      * @throws SyntaxException If the {@code source} expression's syntax is invalid
      */
-    public JsonObject(@NotNull String source) throws SyntaxException {
+    public JsonObject(String source) throws SyntaxException {
         super(Parser.getJsonObject(source).getMap());
     }
 

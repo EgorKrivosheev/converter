@@ -5,94 +5,32 @@ import by.grodno.krivosheev.objects.JsonObject;
 import by.grodno.krivosheev.objects.XmlArrayObject;
 import by.grodno.krivosheev.objects.XmlObject;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Stack;
 
 public abstract class Parser {
-    private static int index = 0;
-
     /**
      * Get JSON object from string
-     * @param source Not null - string JSON
+     * @param source String JSON
      * @return Object JSON
      * @throws SyntaxException If the {@code source} expression's syntax is invalid
      */
-    @NotNull
-    public static JsonObject getJsonObject(@NotNull String source) throws SyntaxException {
+    public static JsonObject getJsonObject(String source) throws SyntaxException {
         Validator.isValidJsonText(source);
         // Next code will used if source is valid JSON text
-        JsonObject jsonObj = new JsonObject();
-        char prevCh = ' ';
-        String key = "";
-        boolean isSaveSpace = false;
-        StringBuilder strBuilder = new StringBuilder();
-
-        do {
-            char ch = source.charAt(index);
-            switch (ch) {
-                case '{':
-                    if (prevCh == ':') {
-                        // Recursive
-                        jsonObj.addKeyAndValue(key, getJsonObject(source));
-                    }
-                    break;
-
-                case ',':
-                case '}':
-                    if (prevCh != '{' && prevCh != '[') {
-                        jsonObj.addKeyAndValue(key, setValue(strBuilder.toString()));
-                    }
-                    // Return from recursive
-                    if (ch != ',' && index != source.length() - 1) {
-                        return jsonObj;
-                    }
-                    break;
-
-                case ':':
-                    key = strBuilder.toString();
-                    // Reset builder
-                    strBuilder.setLength(0);
-                    break;
-
-                case '"':
-                    isSaveSpace = prevCh != '"';
-                    if (prevCh != '"') {
-                        strBuilder.setLength(0);
-                    }
-                    break;
-
-                case '[':
-                    jsonObj.addKeyAndValue(key, getJsonArrayObject(source));
-                    break;
-
-                default:
-                    if (ch == ' ' && !isSaveSpace) {
-                        break;
-                    }
-                    strBuilder.append(ch);
-                    break;
-            }
-            if (Constants.sysCharJson.contains(ch)) {
-                prevCh = ch;
-            }
-            index++;
-        } while (index < source.length());
-        // Reset static index
-        index = 0;
-        return jsonObj;
+        Wrapper indexWrapper = new Wrapper();
+        return getJsonObject(source, indexWrapper);
     }
 
     /**
      * Get XML object from string
-     * @param source Not null - string XML
+     * @param source String XML
      * @return Object XML
      * @throws SyntaxException If the {@code source} expression's syntax is invalid
      */
-    @NotNull
-    public static XmlObject getXmlObject(@NotNull String source) throws SyntaxException {
+    public static XmlObject getXmlObject(String source) throws SyntaxException {
         Validator.isValidXmlText(source);
         // Next code will used if source is valid XML text
+        int index = 0;
         XmlObject objXML = new XmlObject();
         char prevCh = ' ';
         Stack<String> key = new Stack<>();
@@ -163,12 +101,10 @@ public abstract class Parser {
             }
             index++;
         } while (index < source.length());
-        // Reset static index
-        index = 0;
         return objXML;
     }
 
-    protected static Object setValue(@NotNull String str) {
+    protected static Object setValue(String str) {
         if (str.equalsIgnoreCase("true")) {
             return Boolean.TRUE;
         }
@@ -216,29 +152,89 @@ public abstract class Parser {
         return str;
     }
 
-    protected static boolean isIntNumber(@NotNull String str) {
+    protected static boolean isIntNumber(String str) {
         return str.matches("-?\\d+");
     }
 
-    protected static boolean isDecNumber(@NotNull String str) {
+    protected static boolean isDecNumber(String str) {
         return str.matches("-?\\d+\\.\\d+");
     }
 
-    private static JsonArrayObject getJsonArrayObject(@NotNull String source) throws SyntaxException {
+    private static JsonObject getJsonObject(String source, Wrapper indexWrapper) {
+        JsonObject jsonObj = new JsonObject();
+        char prevCh = ' ';
+        String key = "";
+        boolean isSaveSpace = false;
+        StringBuilder strBuilder = new StringBuilder();
+
+        do {
+            char ch = source.charAt(indexWrapper.getIndex());
+            switch (ch) {
+                case '{':
+                    if (prevCh == ':') {
+                        // Recursive
+                        jsonObj.addKeyAndValue(key, getJsonObject(source, indexWrapper));
+                    }
+                    break;
+
+                case ',':
+                case '}':
+                    if (prevCh != '{' && prevCh != '[') {
+                        jsonObj.addKeyAndValue(key, setValue(strBuilder.toString()));
+                    }
+                    // Return from recursive
+                    if (ch != ',' && indexWrapper.getIndex() != source.length() - 1) {
+                        return jsonObj;
+                    }
+                    break;
+
+                case ':':
+                    key = strBuilder.toString();
+                    // Reset builder
+                    strBuilder.setLength(0);
+                    break;
+
+                case '"':
+                    isSaveSpace = prevCh != '"';
+                    if (prevCh != '"') {
+                        strBuilder.setLength(0);
+                    }
+                    break;
+
+                case '[':
+                    jsonObj.addKeyAndValue(key, getJsonArrayObject(source, indexWrapper));
+                    break;
+
+                default:
+                    if (ch == ' ' && !isSaveSpace) {
+                        break;
+                    }
+                    strBuilder.append(ch);
+                    break;
+            }
+            if (Constants.sysCharJson.contains(ch)) {
+                prevCh = ch;
+            }
+            indexWrapper.increaseIndex();
+        } while (indexWrapper.getIndex() < source.length());
+        return jsonObj;
+    }
+
+    private static JsonArrayObject getJsonArrayObject(String source, Wrapper indexWrapper) {
         JsonArrayObject jsonArrayObj = new JsonArrayObject();
         char prevCh = '[';
         boolean isSaveSpace = false;
         StringBuilder strBuilder = new StringBuilder();
 
-        while (index < source.length()) {
-            char ch = source.charAt(index);
+        while (indexWrapper.getIndex() < source.length()) {
+            char ch = source.charAt(indexWrapper.getIndex());
             switch (ch) {
                 case '[':
                     // Ignored
                     break;
 
                 case '{':
-                    jsonArrayObj.add(getJsonObject(source));
+                    jsonArrayObj.add(getJsonObject(source, indexWrapper));
                     break;
 
                 case ',':
@@ -247,7 +243,7 @@ public abstract class Parser {
                         jsonArrayObj.add(setValue(strBuilder.toString()));
                     }
                     strBuilder.setLength(0);
-                    if (ch != ',' && index != source.length() - 1) {
+                    if (ch != ',' && indexWrapper.getIndex() != source.length() - 1) {
                         return jsonArrayObj;
                     }
                     break;
@@ -269,7 +265,7 @@ public abstract class Parser {
             if (Constants.sysCharJson.contains(ch)) {
                 prevCh = ch;
             }
-            index++;
+            indexWrapper.increaseIndex();
         }
         return jsonArrayObj;
     }

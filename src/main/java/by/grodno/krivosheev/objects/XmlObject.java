@@ -4,8 +4,6 @@ import by.grodno.krivosheev.core.AbstractObject;
 import by.grodno.krivosheev.core.Parser;
 import by.grodno.krivosheev.core.SyntaxException;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.stream.Collectors;
 
 public class XmlObject extends AbstractObject {
@@ -15,10 +13,10 @@ public class XmlObject extends AbstractObject {
 
     /**
      * Construct ObjectXML
-     * @param source Not null - string XML
+     * @param source String XML
      * @throws SyntaxException If the {@code source} expression's syntax is invalid
      */
-    public XmlObject(@NotNull String source) throws SyntaxException {
+    public XmlObject(String source) throws SyntaxException {
         super(Parser.getXmlObject(source).getMap());
     }
 

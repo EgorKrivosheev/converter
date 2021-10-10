@@ -5,16 +5,13 @@ import by.grodno.krivosheev.objects.JsonObject;
 import by.grodno.krivosheev.objects.XmlArrayObject;
 import by.grodno.krivosheev.objects.XmlObject;
 
-import org.jetbrains.annotations.NotNull;
-
 public abstract class Converter {
     /**
      * Converted XML to JSON
-     * @param xmlObj Not null - object XML
+     * @param xmlObj Object XML
      * @return Object JSON
      */
-    @NotNull
-    public static JsonObject xmlToJson(@NotNull XmlObject xmlObj) {
+    public static JsonObject xmlToJson(XmlObject xmlObj) {
         return (JsonObject) convertObject(xmlObj);
     }
 
@@ -23,8 +20,7 @@ public abstract class Converter {
      * @param jsonObj Not null - object JSON
      * @return Object XML
      */
-    @NotNull
-    public static XmlObject jsonToXml(@NotNull JsonObject jsonObj) {
+    public static XmlObject jsonToXml(JsonObject jsonObj) {
         return (XmlObject) convertObject(jsonObj);
     }
 
@@ -38,7 +34,6 @@ public abstract class Converter {
                 new JsonObject() :
                 object instanceof JsonObject ?
                         new XmlObject() :
-                        // Maybe is bad practice...
                         new AbstractObject() {};
 
         object.getMap().keySet()
